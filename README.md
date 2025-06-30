@@ -153,6 +153,27 @@ We are systematically cataloging all Lua scripts in this repository into a compr
 - **Filters Available**: 6 script packs, 4 quality levels, 3 SQL requirements, 35+ categories
 - **Total Scripts Cataloged**: 107 systems and counting
 
+#### Viewing the Catalog
+To properly view the interactive HTML catalog (required for JSON data loading):
+
+1. **Start a local web server** in the repository directory:
+   ```bash
+   python3 -m http.server 8000
+   ```
+
+2. **Open your browser** and navigate to:
+   ```
+   http://localhost:8000/script-catalog.html
+   ```
+
+3. **Alternative ports** (if 8000 is in use):
+   ```bash
+   python3 -m http.server 3000    # Use port 3000
+   python3 -m http.server 9000    # Use port 9000
+   ```
+
+**Note**: The catalog requires a web server to load the external JSON data file. Opening `script-catalog.html` directly in a browser will not work due to CORS restrictions.
+
 ### Methodology
 - Each directory is evaluated as either a single cohesive system or a collection of standalone scripts
 - Quality assessment based on code examination, documentation, and complexity
