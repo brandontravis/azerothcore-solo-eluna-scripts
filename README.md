@@ -67,27 +67,20 @@ TODO: Update the above installation instructions to be more accurate.
 
 ## 🎮 Available Systems
 
-This repository includes a comprehensive collection of solo-focused systems, including:
+This repository includes a comprehensive collection of solo-focused systems. For detailed information about all available scripts, including code quality assessments, installation requirements, and functionality descriptions, see the **[Script Catalog](CATALOG.md)**.
 
-### Combat & Arena Systems
-*Coming Soon*
+### Quick Overview
+- **Solo Scripts**: 6 individual script packages for specific functionality
+- **Script Packs**: 3 comprehensive collections from various authors  
+- **Custom Scripts**: Design documents and implementation ideas
 
-### Dungeon & Instance Systems
-*Coming Soon*
+### Categories Include:
+- **Economy & Trading**: Black Market Auction House, Dynamic Trader, Tier Vendors
+- **Player Experience**: Account-wide features, Faster Mounts, Extended Holidays
+- **Quality of Life**: Speed enhancements, automatic systems, holiday control
+- **Multi-System Packs**: Comprehensive script collections from community authors
 
-### World Events & Dynamic Content
-*Coming Soon*
-
-### Progression & Character Systems
-*Coming Soon*
-
-### Economy & Trading Systems
-*Coming Soon*
-
-### Exploration & Discovery Systems
-*Coming Soon*
-
-For detailed information about each system, see the [100 Solo Systems for AzerothCore.md](100%20Solo%20Systems%20for%20AzerothCore.md) file.
+For complete details, file locations, and installation instructions, see the **[Script Catalog](CATALOG.md)**.
 
 ## 🔧 Configuration
 
@@ -129,6 +122,44 @@ Some scripts may require database entries for:
 - Check the server console for error messages
 - Review the Eluna documentation for syntax issues
 - Test scripts individually to isolate problems
+
+## 📊 Current Cataloging Status
+
+**Last Updated**: December 2024
+
+### Progress Overview
+We are systematically cataloging all Lua scripts in this repository into a comprehensive, searchable database. Each script is being evaluated for code quality, functionality, and requirements.
+
+### Completed Sections ✅
+- **Solo Scripts**: 6 individual script packages cataloged
+- **YggdrasilWotlk Script Pack**: 43 scripts cataloged (100% complete)
+- **Isidorsson Script Pack**: 49 systems cataloged (100% complete)
+  - Includes breakdown of major AIO systems and individual QoL scripts
+  - All grouped collections separated into individual entries
+- **HTML Interface**: Complete with pagination, filtering, and search functionality
+
+### In Progress 🔄
+- **Ornfelt Script Pack**: 9 systems cataloged out of 65+ directories
+  - Recently added: AzerothCore Multi-Vendor, Starting NPC, Global Mail/Banking, Zone Selector, Trivia System, Wowhead Integration, Auto Rez, Boss Timer, CarbonCopy, Event Scripts Collection
+  - **Next up**: Continuing alphabetically with Acore_LevelUpReward, Acore_LootStats, Acore_Lua_BuffNPC, Acore_Lua_Mythic_Plus, Acore_Lua_RandomlyAttacked
+
+### Remaining Work 📋
+- **Ornfelt Script Pack**: ~56 more directories to catalog
+- **Final Review**: Quality assessments and testing
+- **Documentation**: Installation guides and usage instructions
+
+### Catalog Access
+- **Interactive HTML Catalog**: `script-catalog.html` - Complete searchable interface with filtering by pack, quality, SQL requirements, and categories
+- **Filters Available**: 6 script packs, 4 quality levels, 3 SQL requirements, 35+ categories
+- **Total Scripts Cataloged**: 107 systems and counting
+
+### Methodology
+- Each directory is evaluated as either a single cohesive system or a collection of standalone scripts
+- Quality assessment based on code examination, documentation, and complexity
+- Duplicate systems across packs are identified and noted
+- Non-Lua content (C++, Python, documentation-only) is appropriately categorized
+
+**Note**: This cataloging effort represents the most comprehensive documentation of AzerothCore Eluna scripts available, with detailed technical assessments and implementation guidance for each system.
 
 ## 🤝 Contributing
 

@@ -1,0 +1,2760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AzerothCore Eluna Scripts Catalog</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        .quality-excellent { color: #28a745; }
+        .quality-good { color: #ffc107; }
+        .quality-fair { color: #fd7e14; }
+        .quality-poor { color: #dc3545; }
+        .sql-none { color: #28a745; }
+        .sql-optional { color: #ffc107; }
+        .sql-required { color: #dc3545; }
+        .script-card { margin-bottom: 1rem; }
+        .stats-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .filter-section { background-color: #f8f9fa; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; }
+        .favorite-btn { 
+            background: none; 
+            border: none; 
+            font-size: 1.2rem; 
+            cursor: pointer; 
+            transition: all 0.2s ease;
+        }
+        .favorite-btn:hover { transform: scale(1.1); }
+        .favorite-btn.not-reviewed { color: #6c757d; }
+        .favorite-btn.favorited { color: #dc3545; }
+        .favorite-btn.dismissed { color: #6c757d; }
+        .script-card.dismissed-script .card-body { display: none; }
+        .script-card.dismissed-script { opacity: 0.25; }
+        .script-card.favorited-script .card-body { display: none; }
+        .card-header { cursor: pointer; transition: background-color 0.2s ease; }
+        .card-header:hover { background-color: rgba(0,0,0,0.03); }
+        .pagination-controls { 
+            background-color: #f8f9fa; 
+            padding: 1rem; 
+            border-radius: 0.5rem; 
+            margin-bottom: 1rem; 
+        }
+        .page-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .pagination .page-link {
+            color: #667eea;
+        }
+        .pagination .page-item.active .page-link {
+            background-color: #667eea;
+            border-color: #667eea;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="display-4 text-center mb-4">
+                    <i class="bi bi-code-square"></i> AzerothCore Eluna Scripts Catalog
+                </h1>
+                
+                <!-- Statistics Dashboard -->
+                <div class="row mb-4">
+                    <div class="col-md-2">
+                        <div class="card stats-card">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Total Scripts</h5>
+                                <h2 id="total-scripts">49</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card bg-success text-white">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Showing</h5>
+                                <h2 id="showing-count">0</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Excellent Quality</h5>
+                                <h2 id="excellent-count">0</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card bg-info text-white">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Not Reviewed <i class="bi bi-heart"></i></h5>
+                                <h2 id="not-reviewed-count">49</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card bg-danger text-white">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Favorites <i class="bi bi-heart-fill"></i></h5>
+                                <h2 id="favorites-count">0</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card bg-secondary text-white">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Dismissed <i class="bi bi-heartbreak"></i></h5>
+                                <h2 id="dismissed-count">0</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters and Search -->
+                <div class="filter-section">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label for="search-input" class="form-label">Search Scripts</label>
+                            <input type="text" id="search-input" class="form-control" placeholder="Search by name, description, author...">
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-2">
+                            <label for="pack-filter" class="form-label">Script Pack</label>
+                            <select id="pack-filter" class="form-select">
+                                <option value="">All Packs</option>
+                                <option value="Solo Scripts">Solo Scripts</option>
+                                <option value="YggdrasilWotlk">YggdrasilWotlk</option>
+                                <option value="Isidorsson">Isidorsson</option>
+                                <option value="Ornfelt">Ornfelt</option>
+                                <option value="Custom Scripts">Custom Scripts</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="quality-filter" class="form-label">Code Quality</label>
+                            <select id="quality-filter" class="form-select">
+                                <option value="">All Quality</option>
+                                <option value="Excellent">🟢 Excellent</option>
+                                <option value="Good">🟡 Good</option>
+                                <option value="Fair">🟠 Fair</option>
+                                <option value="Poor">🔴 Poor</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="sql-filter" class="form-label">SQL Required</label>
+                            <select id="sql-filter" class="form-select">
+                                <option value="">All SQL</option>
+                                <option value="None">✅ None</option>
+                                <option value="Optional">⚠️ Optional</option>
+                                <option value="Required">🔴 Required</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="category-filter" class="form-label">Category</label>
+                            <select id="category-filter" class="form-select">
+                                <option value="">All Categories</option>
+                                <option value="Quest Fix">🛠️ Quest Fix</option>
+                                <option value="NPC Fix">🛠️ NPC Fix</option>
+                                <option value="Boss Fix">🛠️ Boss Fix</option>
+                                <option value="Instance Fix">🛠️ Instance Fix</option>
+                                <option value="Creature Fix">🛠️ Creature Fix</option>
+                                <option value="Item Fix">🛠️ Item Fix</option>
+                                <option value="Spell Fix">🛠️ Spell Fix</option>
+                                <option value="Network Fix">🛠️ Network Fix</option>
+                                <option value="Zone Fix">🛠️ Zone Fix</option>
+                                <option value="Mount Fix">🛠️ Mount Fix</option>
+                                <option value="RP Event">🎭 RP Event</option>
+                                <option value="GM Command">💻 GM Command</option>
+                                <option value="Economy System">🛒 Economy System</option>
+                                <option value="Account System">⚙️ Account System</option>
+                                <option value="UI Enhancement">⚙️ UI Enhancement</option>
+                                <option value="Transmog System">🏪 Transmog System</option>
+                                <option value="Discord Bot">🤖 Discord Bot</option>
+                                <option value="Automation">🤖 Automation</option>
+                                <option value="Documentation">📚 Documentation</option>
+                                <option value="Auction System">🏪 Auction System</option>
+                                <option value="Server Events">🎉 Server Events</option>
+                                <option value="Mount Enhancement">🏃 Mount Enhancement</option>
+                                <option value="Vendor System">🏪 Vendor System</option>
+                                <option value="Banking System">🏪 Banking System</option>
+                                <option value="Skill Progression">🎮 Skill Progression</option>
+                                <option value="GM Interface">💻 GM Interface</option>
+                                <option value="Store Interface">🛒 Store Interface</option>
+                                <option value="Race Interface">🎭 Race Interface</option>
+                                <option value="Talent Interface">🌟 Talent Interface</option>
+                                <option value="Gambling System">🎰 Gambling System</option>
+                                <option value="Character System">👤 Character System</option>
+                                <option value="Zone System">🗺️ Zone System</option>
+                                <option value="Game System">🎮 Game System</option>
+                                <option value="Integration System">🔗 Integration System</option>
+                                <option value="Development Tool">🛠️ Development Tool</option>
+                                <option value="Utility System">⚙️ Utility System</option>
+                                <option value="Raid System">⚔️ Raid System</option>
+                                <option value="NPC System">👥 NPC System</option>
+                                <option value="Event System">🎉 Event System</option>
+                                <option value="Admin System">⚡ Admin System</option>
+                                <option value="Visual System">🎨 Visual System</option>
+                                <option value="Class System">⚔️ Class System</option>
+                                <option value="Reputation System">🏆 Reputation System</option>
+                                <option value="Quest System">📜 Quest System</option>
+                                <option value="Guild System">🏰 Guild System</option>
+                                <option value="Gear System">🛡️ Gear System</option>
+                                <option value="Auto Learning">📚 Auto Learning</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="favorites-filter" class="form-label">Review Status</label>
+                            <select id="favorites-filter" class="form-select">
+                                <option value="">All Scripts</option>
+                                <option value="not-reviewed">🤍 Not Reviewed</option>
+                                <option value="favorites">❤️ Favorites</option>
+                                <option value="dismissed">💔 Dismissed</option>
+                                <option value="reviewed">🔍 All Reviewed (Fav + Dismissed)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="sort-select" class="form-label">Sort By</label>
+                            <select id="sort-select" class="form-select">
+                                <option value="name">Name A-Z</option>
+                                <option value="quality">Quality</option>
+                                <option value="pack">Script Pack</option>
+                                <option value="size">File Size</option>
+                                <option value="category">Category</option>
+                                <option value="favorites">❤️ Review Status</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination Controls -->
+                <div class="pagination-controls">
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <div class="page-info">
+                                <label for="per-page-select" class="form-label mb-0">Scripts per page:</label>
+                                <select id="per-page-select" class="form-select" style="width: auto;">
+                                    <option value="5">5</option>
+                                    <option value="10" selected>10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <span id="page-info" class="text-muted">Showing 1-10 of 49 scripts</span>
+                        </div>
+                        <div class="col-md-4 d-flex justify-content-end">
+                            <nav aria-label="Script pagination">
+                                <ul class="pagination mb-0" id="pagination-controls">
+                                    <!-- Pagination buttons will be inserted here -->
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scripts Container -->
+                <div id="scripts-container">
+                    <!-- Scripts will be inserted here by JavaScript -->
+                </div>
+
+                <!-- Bottom Pagination -->
+                <div class="pagination-controls mt-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <span id="page-info-bottom" class="text-muted">Showing 1-10 of 49 scripts</span>
+                        </div>
+                        <div class="col-md-8 d-flex justify-content-end">
+                            <nav aria-label="Script pagination bottom">
+                                <ul class="pagination mb-0" id="pagination-controls-bottom">
+                                    <!-- Pagination buttons will be inserted here -->
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Pagination state
+        let currentPage = 1;
+        let scriptsPerPage = 10;
+        let filteredScripts = [];
+        let allScripts = [];
+
+        // Script data embedded directly in HTML
+        const scriptsData = [
+            // Solo Scripts
+            {
+                name: "Black Market Auction House",
+                pack: "Solo Scripts",
+                category: "Auction System",
+                quality: "Good",
+                sql: "Required",
+                implementation: "🏪 NPC + Interface",
+                description: "A backport of the Black Market Auction House system from later WoW expansions. Allows players to bid on rare items through a special auction house interface. Features both server-side and client-side components.",
+                author: "Stephen Kania",
+                license: "GPLv3",
+                location: "Solo Scripts/Black-Market-Auction-House/",
+                files: ["readme.txt (264B)", "LICENSE (35KB)", "Server Files/", "Client Files/"],
+                size: "35KB+",
+                notes: "Requires both server and client modifications. Complex installation process."
+            },
+            {
+                name: "Extended Holidays",
+                pack: "Solo Scripts",
+                category: "Server Events",
+                quality: "Excellent",
+                sql: "None",
+                implementation: "🎉 Server Events",
+                description: "Allows server administrators to enable or disable specific in-game holidays through a simple configuration table. Automatically activates configured holidays on server startup with console output for verification.",
+                author: "Unknown",
+                license: "Unknown",
+                location: "Solo Scripts/Extended-Holidays-Lua/",
+                files: ["ExtendedHolidays.lua (2.3KB, 74 lines)", "README.md (1KB)"],
+                size: "2.3KB",
+                notes: "Simple boolean table for 22+ holidays including Brewfest, Hallow's End, Winter Veil, etc."
+            },
+            {
+                name: "Dynamic Trader",
+                pack: "Solo Scripts",
+                category: "Economy System",
+                quality: "Excellent",
+                sql: "Required",
+                implementation: "🛒 NPC + GM Commands",
+                description: "A sophisticated dynamic pricing market system that simulates an auction house economy. Features inflation, time-based price fluctuations, buy/sell mechanics, and GM management commands. Designed for smaller servers lacking active auction houses.",
+                author: "Dinkledork",
+                license: "Unknown",
+                location: "Solo Scripts/Dynamic-Trader/",
+                files: ["DynamicMarketTrader-Vanilla.lua (52KB, 691 lines)", "TraderNPC.sql (1.2KB)", "README.md (3.9KB)"],
+                size: "52KB",
+                notes: "NPC #180000 + .vprices, .vbp, .vsp commands. Economy balance based on authentic vanilla values."
+            },
+            {
+                name: "Account-Wide Features",
+                pack: "Solo Scripts",
+                category: "Account System",
+                quality: "Excellent",
+                sql: "Required",
+                implementation: "⚙️ Automatic Systems",
+                description: "Comprehensive account-wide sharing system with 8 independent modules. Each system can be enabled/disabled individually and creates dedicated database tables for persistence.",
+                author: "Unknown",
+                license: "Unknown",
+                location: "Solo Scripts/azerothcore-eluna-accountwide/",
+                files: ["README.md (4.6KB)", "sql/", "lua_scripts/", "Multiple .lua files"],
+                size: "Multiple",
+                notes: "Systems: Achievements, Currency, Money, Mounts, Pets, PvP Rank/Stats, Reputation, Taxi Paths, Titles"
+            },
+            {
+                name: "Faster Mounts",
+                pack: "Solo Scripts",
+                category: "Mount Enhancement",
+                quality: "Good",
+                sql: "None",
+                implementation: "🏃 Automatic Systems + Spell Learning",
+                description: "Increases mount and travel form speeds beyond default values. Includes automatic mount learning at level 10, enhanced shapeshift speeds, and faster ghost/dead movement.",
+                author: "Unknown",
+                license: "Unknown",
+                location: "Solo Scripts/faster-mounts/",
+                files: ["faster_mounts.lua (7.2KB, 178 lines)"],
+                size: "7.2KB",
+                notes: "Speed increases: Ground mounts 160%→220%, 200%→250%; Flying 250%→340%, 380%→450%"
+            },
+            {
+                name: "Tier Vendors",
+                pack: "Solo Scripts",
+                category: "Vendor System",
+                quality: "Good",
+                sql: "Required",
+                implementation: "🏪 NPCs",
+                description: "Adds three vendor NPCs that sell tier gear and raid loot from earlier raid tiers. Designed for gear collection and catch-up mechanics on solo servers.",
+                author: "Unknown",
+                license: "Unknown",
+                location: "Solo Scripts/ac-mod-tier-vendors/",
+                files: ["mod-tier-vendor.lua (14KB, 317 lines)", "README.md (500B)", "SQL/", "ts-version/"],
+                size: "14KB",
+                notes: "Three separate vendor NPCs for different tier sets. Configurable NPC entry IDs to avoid conflicts."
+            },
+
+            // YggdrasilWotlk Quest Scripts
+            {
+                name: "Secrets of Wyrmskull Fix",
+                pack: "YggdrasilWotlk",
+                category: "Quest Fix",
+                quality: "Excellent",
+                sql: "None",
+                implementation: "🛠️ Quest Fix",
+                description: "Fixes missing completion event for 'Secrets of Wyrmskull' quest. Periodically checks players with specific aura (42786) in the completion area to automatically complete the quest.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Quest/",
+                files: ["11343.lua"],
+                size: "Small",
+                notes: "Quest ID 11343 - Clean, well-commented code"
+            },
+            {
+                name: "Bronzebeard Brothers Reunion RP",
+                pack: "YggdrasilWotlk",
+                category: "RP Event",
+                quality: "Excellent",
+                sql: "None",
+                implementation: "🎭 RP Event",
+                description: "Elaborate roleplay event featuring Brann, Muradin, and Magni Bronzebeard reunion dialogue. Complex scripted sequence with timing, movement, and emotes.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Quest/",
+                files: ["12973.lua"],
+                size: "Large",
+                notes: "Quest ID 12973 - Multi-character dialogue sequence"
+            },
+
+            // Additional YggdrasilWotlk Quest Scripts
+            {
+                name: "Quest Fix 11390",
+                pack: "YggdrasilWotlk",
+                category: "Quest Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Quest Fix",
+                description: "Quest-specific fix for ID 11390.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Quest/",
+                files: ["11390.lua (1.5KB)"],
+                size: "1.5KB",
+                notes: "Quest ID 11390 - Functional fix"
+            },
+            {
+                name: "Quest Fix 11590",
+                pack: "YggdrasilWotlk",
+                category: "Quest Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Quest Fix",
+                description: "Quest-specific fix for ID 11590.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Quest/",
+                files: ["11590.lua (2.7KB)"],
+                size: "2.7KB",
+                notes: "Quest ID 11590 - Moderate complexity"
+            },
+            {
+                name: "Quest Fix 12032",
+                pack: "YggdrasilWotlk",
+                category: "Quest Fix",
+                quality: "Excellent",
+                sql: "None",
+                implementation: "🛠️ Quest Fix",
+                description: "Substantial quest fix with complex mechanics for ID 12032.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Quest/",
+                files: ["12032.lua (7.3KB)"],
+                size: "7.3KB",
+                notes: "Quest ID 12032 - Complex mechanics"
+            },
+
+            // YggdrasilWotlk NPC Scripts
+            {
+                name: "Gerald Green Position Fix",
+                pack: "YggdrasilWotlk",
+                category: "NPC Fix",
+                quality: "Excellent",
+                sql: "None",
+                implementation: "🛠️ NPC Fix",
+                description: "Fixes Gerald Green (NPC 26083) getting lost. Automatically returns him to home position when players enter Farshire area.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/NPC/",
+                files: ["26083-Gerald-Green.lua"],
+                size: "Small",
+                notes: "NPC 26083 - Auto-return home functionality"
+            },
+            {
+                name: "Hodir Adds Fix",
+                pack: "YggdrasilWotlk",
+                category: "Boss Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Boss Fix",
+                description: "Fixes issues with Hodir encounter adds.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/NPC/",
+                files: ["HodirAdds.lua"],
+                size: "Medium",
+                notes: "Hodir encounter - Adds mechanics"
+            },
+            {
+                name: "ICC Gunship Cannoneers Fix",
+                pack: "YggdrasilWotlk",
+                category: "Instance Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Instance Fix",
+                description: "Fixes Icecrown Citadel gunship cannoneer mechanics.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/NPC/",
+                files: ["ICC-Gunship-Cannoneers.lua"],
+                size: "Medium",
+                notes: "ICC Gunship - Cannoneer mechanics"
+            },
+            {
+                name: "Sindragosa Tail Smash Fix",
+                pack: "YggdrasilWotlk",
+                category: "Boss Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Boss Fix",
+                description: "Fixes Sindragosa's tail smash mechanic in ICC.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/NPC/",
+                files: ["SindragosaTailSmash.lua"],
+                size: "Medium",
+                notes: "Sindragosa - Tail smash mechanic"
+            },
+
+            // YggdrasilWotlk Major Systems
+            {
+                name: "Transmogrification System",
+                pack: "YggdrasilWotlk",
+                category: "Transmog System",
+                quality: "Excellent",
+                sql: "Required",
+                implementation: "🏪 NPC + UI",
+                description: "Massive 47,000-line transmogrification system with UI, saving, applying sets, hiding items, and weapon combinations.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Modules/",
+                files: ["Transmogrification.lua (47,000 lines)"],
+                size: "47KB+",
+                notes: "Complete transmog system - Requires database tables"
+            },
+            {
+                name: "Cross-Faction Menus",
+                pack: "YggdrasilWotlk",
+                category: "UI Enhancement",
+                quality: "Excellent",
+                sql: "None",
+                implementation: "⚙️ UI Enhancement",
+                description: "Adds cross-faction interaction options (invite, whisper, follow, trade) to player context menus.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/AIO/",
+                files: ["CrossFactionMenus.lua (179 lines)"],
+                size: "Small",
+                notes: "Cross-faction menus - Polished UI enhancement"
+            },
+
+            // YggdrasilWotlk Commands
+            {
+                name: "GM Go Offset Command",
+                pack: "YggdrasilWotlk",
+                category: "GM Command",
+                quality: "Good",
+                sql: "None",
+                implementation: "💻 GM Command",
+                description: "GM command for teleporting with XYZ offset calculations.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Commands/",
+                files: ["go offset XYZ.lua"],
+                size: "Small",
+                notes: "Teleport with offset - GM utility"
+            },
+            {
+                name: "Learn Spell Command",
+                pack: "YggdrasilWotlk",
+                category: "GM Command",
+                quality: "Good",
+                sql: "None",
+                implementation: "💻 GM Command",
+                description: "Enhanced spell learning command for GMs.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Commands/",
+                files: ["learnspell.lua"],
+                size: "Small",
+                notes: "Enhanced spell learning - GM utility"
+            },
+
+            // YggdrasilWotlk Bot Scripts
+            {
+                name: "Discord Restart Notification",
+                pack: "YggdrasilWotlk",
+                category: "Discord Bot",
+                quality: "Good",
+                sql: "None",
+                implementation: "🤖 Discord Bot",
+                description: "Sends Discord notifications when server restarts.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Bots/",
+                files: ["DiscordNotificationOnRestart.lua"],
+                size: "Small",
+                notes: "Discord integration - Restart notifications"
+            },
+            {
+                name: "Weekly Restart Bot",
+                pack: "YggdrasilWotlk",
+                category: "Automation",
+                quality: "Good",
+                sql: "None",
+                implementation: "🤖 Automation",
+                description: "Manages weekly server restart automation.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Bots/",
+                files: ["WeeklyRestartBot.lua"],
+                size: "Small",
+                notes: "Weekly restart automation"
+            },
+
+            // Additional YggdrasilWotlk Quest Scripts (Missing)
+            {
+                name: "Quest Fix 11648",
+                pack: "YggdrasilWotlk",
+                category: "Quest Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Quest Fix",
+                description: "Lightweight quest fix for ID 11648.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Quest/",
+                files: ["11648.lua (744B)"],
+                size: "744B",
+                notes: "Quest ID 11648 - Simple fix"
+            },
+            {
+                name: "Quest Fix 12028 Wisp",
+                pack: "YggdrasilWotlk",
+                category: "Quest Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Quest Fix",
+                description: "Quest fix involving wisp mechanics for quest 12028.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Quest/",
+                files: ["12028Wisp.lua (917B)"],
+                size: "917B",
+                notes: "Quest ID 12028 - Wisp mechanics"
+            },
+            {
+                name: "Quest Fix 12326",
+                pack: "YggdrasilWotlk",
+                category: "Quest Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Quest Fix",
+                description: "Moderate complexity quest fix for ID 12326.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Quest/",
+                files: ["12326.lua (3.1KB)"],
+                size: "3.1KB",
+                notes: "Quest ID 12326 - Moderate complexity"
+            },
+            {
+                name: "Quest Fix 12498",
+                pack: "YggdrasilWotlk",
+                category: "Quest Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Quest Fix",
+                description: "Quest fix for ID 12498.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Quest/",
+                files: ["12498.lua (1.7KB)"],
+                size: "1.7KB",
+                notes: "Quest ID 12498"
+            },
+            {
+                name: "Quest Fix 12570",
+                pack: "YggdrasilWotlk",
+                category: "Quest Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Quest Fix",
+                description: "Quest fix for ID 12570.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Quest/",
+                files: ["12570.lua (1.4KB)"],
+                size: "1.4KB",
+                notes: "Quest ID 12570"
+            },
+            {
+                name: "Quest Fix 12641",
+                pack: "YggdrasilWotlk",
+                category: "Quest Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Quest Fix",
+                description: "Simple quest fix for ID 12641.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Quest/",
+                files: ["12641.lua (519B)"],
+                size: "519B",
+                notes: "Quest ID 12641 - Simple"
+            },
+            {
+                name: "Quest Fix 12664",
+                pack: "YggdrasilWotlk",
+                category: "Quest Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Quest Fix",
+                description: "Quest fix for ID 12664.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Quest/",
+                files: ["12664.lua (691B)"],
+                size: "691B",
+                notes: "Quest ID 12664"
+            },
+            {
+                name: "Quest Fix 13081",
+                pack: "YggdrasilWotlk",
+                category: "Quest Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Quest Fix",
+                description: "Quest fix for ID 13081.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Quest/",
+                files: ["13081.lua (1.8KB)"],
+                size: "1.8KB",
+                notes: "Quest ID 13081"
+            },
+            {
+                name: "Quest Fix 13297",
+                pack: "YggdrasilWotlk",
+                category: "Quest Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Quest Fix",
+                description: "Quest fix for ID 13297.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Quest/",
+                files: ["13297.lua (1.5KB)"],
+                size: "1.5KB",
+                notes: "Quest ID 13297"
+            },
+            {
+                name: "Quest Fix 13380",
+                pack: "YggdrasilWotlk",
+                category: "Quest Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Quest Fix",
+                description: "Quest fix for ID 13380.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Quest/",
+                files: ["13380.lua (843B)"],
+                size: "843B",
+                notes: "Quest ID 13380"
+            },
+            {
+                name: "Quest Fix 5721",
+                pack: "YggdrasilWotlk",
+                category: "Quest Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Quest Fix",
+                description: "Quest fix for ID 5721.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Quest/",
+                files: ["5721.lua (1.9KB)"],
+                size: "1.9KB",
+                notes: "Quest ID 5721"
+            },
+            {
+                name: "Quest Fix 6621",
+                pack: "YggdrasilWotlk",
+                category: "Quest Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Quest Fix",
+                description: "Quest fix for ID 6621.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Quest/",
+                files: ["6621.lua (947B)"],
+                size: "947B",
+                notes: "Quest ID 6621"
+            },
+
+            // Additional YggdrasilWotlk NPC Scripts (Missing)
+            {
+                name: "NPC Fix 31281",
+                pack: "YggdrasilWotlk",
+                category: "NPC Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ NPC Fix",
+                description: "NPC behavior fix for ID 31281.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/NPC/",
+                files: ["31281.lua"],
+                size: "Medium",
+                notes: "NPC ID 31281"
+            },
+            {
+                name: "Kologarn Laser Fix",
+                pack: "YggdrasilWotlk",
+                category: "Boss Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Boss Fix",
+                description: "Fixes Kologarn laser mechanics in Ulduar.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/NPC/",
+                files: ["KologarnLazer.lua"],
+                size: "Medium",
+                notes: "Kologarn laser mechanics"
+            },
+            {
+                name: "POS Gargoyle RP Fix",
+                pack: "YggdrasilWotlk",
+                category: "RP Event",
+                quality: "Good",
+                sql: "None",
+                implementation: "🎭 RP Event",
+                description: "Fixes roleplay event for gargoyle in Pit of Saron.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/NPC/",
+                files: ["POSGargoyleRP.lua"],
+                size: "Medium",
+                notes: "Pit of Saron gargoyle RP"
+            },
+            {
+                name: "Shambling Horror Fix",
+                pack: "YggdrasilWotlk",
+                category: "Creature Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Creature Fix",
+                description: "Fixes Shambling Horror creature behavior.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/NPC/",
+                files: ["ShamblingHorror.lua"],
+                size: "Medium",
+                notes: "Shambling Horror behavior"
+            },
+            {
+                name: "Tyrannus RP Fix",
+                pack: "YggdrasilWotlk",
+                category: "RP Event",
+                quality: "Good",
+                sql: "None",
+                implementation: "🎭 RP Event",
+                description: "Fixes Tyrannus roleplay sequences.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/NPC/",
+                files: ["TyrannusRP.lua"],
+                size: "Medium",
+                notes: "Tyrannus roleplay"
+            },
+            {
+                name: "Vile Spirit Fix",
+                pack: "YggdrasilWotlk",
+                category: "Boss Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Boss Fix",
+                description: "Fixes Vile Spirit mechanics.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/NPC/",
+                files: ["VileSpiritFix.lua"],
+                size: "Medium",
+                notes: "Vile Spirit mechanics"
+            },
+            {
+                name: "Zelfrax Rescript",
+                pack: "YggdrasilWotlk",
+                category: "Boss Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Boss Fix",
+                description: "Complete rescript for Zelfrax encounter.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/NPC/",
+                files: ["Zelfrax rescript.lua"],
+                size: "Large",
+                notes: "Zelfrax encounter - Complete rescript"
+            },
+
+            // Additional YggdrasilWotlk Other Scripts (Missing)
+            {
+                name: "Set Faction Fix",
+                pack: "YggdrasilWotlk",
+                category: "Instance Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Instance Fix",
+                description: "Fixes faction-related issues in instances.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Instance/",
+                files: ["SetFaction.lua"],
+                size: "Medium",
+                notes: "Faction settings in instances"
+            },
+            {
+                name: "Ulduar Siege Engine Fix",
+                pack: "YggdrasilWotlk",
+                category: "Boss Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Boss Fix",
+                description: "Fixes Ulduar siege engine encounter mechanics.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Instance/",
+                files: ["UlduarSiegeEngine.lua"],
+                size: "Medium",
+                notes: "Ulduar siege engine encounter"
+            },
+            {
+                name: "Nibelung Valkyrie Control",
+                pack: "YggdrasilWotlk",
+                category: "Item Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Item Fix",
+                description: "Fixes Nibelung weapon's Valkyrie summoning mechanic.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Item/",
+                files: ["NibelungValkyrControl.lua"],
+                size: "Medium",
+                notes: "Nibelung proc control"
+            },
+            {
+                name: "Corpse Reclaim Delay Fix",
+                pack: "YggdrasilWotlk",
+                category: "Network Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Network Fix",
+                description: "Fixes corpse reclaim delay packet handling.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/PacketHandling/",
+                files: ["SMSG_CORPSE_RECLAIM_DELAY.lua"],
+                size: "Small",
+                notes: "Corpse reclaim packet handling"
+            },
+            {
+                name: "Borean Animal Blood Water Fix",
+                pack: "YggdrasilWotlk",
+                category: "Spell Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Spell Fix",
+                description: "Fixes spell 46211 related to Borean animal blood water.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Spell/",
+                files: ["46211BoreanAnimalBloodWater.lua"],
+                size: "Small",
+                notes: "Spell 46211 - Borean animal blood"
+            },
+            {
+                name: "Army of the Dead Spawn Emote",
+                pack: "YggdrasilWotlk",
+                category: "Spell Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Spell Fix",
+                description: "Adds proper emotes to Army of the Dead spell spawns.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Spell/",
+                files: ["ArmyoftheDeadSpawnEmote.lua"],
+                size: "Small",
+                notes: "Army of the Dead emote enhancement"
+            },
+            {
+                name: "Traveler's Tundra Mammoth Faction Fix",
+                pack: "YggdrasilWotlk",
+                category: "Mount Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Mount Fix",
+                description: "Fixes faction restrictions for Traveler's Tundra Mammoth.",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Spell/",
+                files: ["TravelersTundraMammothFaction.lua"],
+                size: "Small",
+                notes: "Faction restrictions for mount"
+            },
+            {
+                name: "Zone Enhancement Pack",
+                pack: "YggdrasilWotlk",
+                category: "Zone Fix",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛠️ Zone Fix",
+                description: "Zone-specific fixes and enhancements (2 files).",
+                author: "Yggdrasil WoW Development Team",
+                license: "Open source",
+                location: "Script Packs/YggdrasilWotlk Script Pack/Eluna-Scripts/Zone/",
+                files: ["Multiple zone scripts (2 files)"],
+                size: "Medium",
+                notes: "Zone-specific fixes and enhancements"
+            },
+
+            // Isidorsson Script Pack - Major AIO Systems
+            {
+                name: "BankUI System",
+                pack: "Isidorsson",
+                category: "Banking System",
+                quality: "Excellent",
+                sql: "Required",
+                implementation: "🏪 Banking UI",
+                description: "Advanced banking system with custom UI that uses BigInt to handle unlimited monetary values. Allows players to deposit/withdraw funds through an intuitive interface without integer overflow limitations.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/AIO Scripts/BankUI/",
+                files: ["BankServer.lua (3.7KB, 110 lines)", "BankClient.lua (10KB, 258 lines)", "readme.md (2.2KB)", "image.png (153KB)"],
+                size: "14KB+",
+                notes: "Requires AIO server, client BLP files in Interface/BankUI/, and auth database table creation. BigInt storage for unlimited monetary values."
+            },
+            {
+                name: "RuneScape Skill System",
+                pack: "Isidorsson",
+                category: "Skill Progression",
+                quality: "Excellent",
+                sql: "Required",
+                implementation: "🎮 Skill Progression",
+                description: "Comprehensive RuneScape-style skill and milestone system with custom skills, XP tracking, automated gain from activities, and milestone rewards. Features animated UI and performance-optimized batch saving.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/AIO Scripts/RuneScape-skill/",
+                files: ["skillServer.lua (67KB, 1672 lines)", "skillClient.lua (47KB, 1186 lines)", "skillSql.sql (12KB, 151 lines)", "README.md (3.0KB)"],
+                size: "127KB+",
+                notes: "Commands: /skills, #addrsxp, #forceskillxp. Pre-configured for Mining and Fishing. Requires client BLP files Interface\\Skill_RS\\"
+            },
+            {
+                name: "GameMaster System",
+                pack: "Isidorsson",
+                category: "GM Interface",
+                quality: "Excellent",
+                sql: "Optional",
+                implementation: "💻 GM Interface",
+                description: "Comprehensive Game Master control system providing advanced administrative tools through a custom AIO interface. Massive system with 35KB server logic and 57KB client interface.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/AIO Scripts/GameMasterSystem/",
+                files: ["gameMasterServer.lua (35KB, 1150 lines)", "gameMasterClient.lua (57KB, 2071 lines)", "readme.md (4.1KB)"],
+                size: "92KB+",
+                notes: "Complete GM control panel with advanced tools. 2000+ lines of client interface code. AIO integration for server-delivered interface."
+            },
+            {
+                name: "Custom Store System",
+                pack: "Isidorsson",
+                category: "Store Interface",
+                quality: "Good",
+                sql: "Required",
+                implementation: "🛒 Store Interface",
+                description: "Custom store system allowing players to purchase items, services, or enhancements through a dedicated shop interface. Professional implementation with visual storefront.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/AIO Scripts/Custom store AIO/",
+                files: ["Server/ directory", "ReadMe.md (647B)", "customStore.png (463KB)"],
+                size: "463KB+",
+                notes: "Visual storefront with custom store interface and graphics. Transaction system with purchase handling and validation."
+            },
+            {
+                name: "Custom Racial UI",
+                pack: "Isidorsson",
+                category: "Race Interface",
+                quality: "Good",
+                sql: "Required",
+                implementation: "🎭 Race Interface",
+                description: "Custom racial interface system allowing players to modify or select races through a specialized UI. Part of character customization enhancement suite.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/AIO Scripts/Custom Racial UI/",
+                files: ["Multiple UI and logic files"],
+                size: "Medium",
+                notes: "Race customization system with specialized UI. Requires AIO server and client-side interface files."
+            },
+            {
+                name: "Talent Tree Retail Style",
+                pack: "Isidorsson",
+                category: "Talent Interface",
+                quality: "Good",
+                sql: "Required",
+                implementation: "🌟 Talent Interface",
+                description: "Modern retail-style talent tree system replacing the classic talent system with a contemporary interface and functionality. Provides players with modern talent selection experience.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/AIO Scripts/Talent Tree Retail Style/",
+                files: ["Multiple talent system files"],
+                size: "Large",
+                notes: "Retail WoW-style talent trees with custom talents and professional interface. Configurable talent options and effects."
+            },
+            {
+                name: "Slot Machine System",
+                pack: "Isidorsson",
+                category: "Gambling System",
+                quality: "Good",
+                sql: "Required",
+                implementation: "🎰 Gambling Interface",
+                description: "Casino-style slot machine system providing entertainment and gambling mechanics. Players can spend in-game currency for chances to win rewards through slot machine interface.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/AIO Scripts/Slot-Machine/",
+                files: ["Slot machine files with UI"],
+                size: "Medium",
+                notes: "Gambling mechanics with slot machine gameplay. Configurable prizes and payout rates with visual interface and animations."
+            },
+
+            // Isidorsson Script Pack - Quality of Life Scripts
+            {
+                name: "Account Mounts v2",
+                pack: "Isidorsson",
+                category: "Account System",
+                quality: "Excellent",
+                sql: "Required",
+                implementation: "🏃 Account-Wide Mounts",
+                description: "Complete account-wide mount system with comprehensive list of all 396 WotLK mounts. Handles riding skill requirements, class restrictions, and faction limitations. Features strict faction controls and GM debug commands.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/",
+                files: ["account mounts v2.lua (25KB, 514 lines)"],
+                size: "25KB",
+                notes: "Covers all 396 mounts in WotLK. Configurable faction restrictions and GM '.learn all mounts' command. Requires riding skill validation."
+            },
+            {
+                name: "Abilities Levelup v2",
+                pack: "Isidorsson",
+                category: "Auto Learning",
+                quality: "Excellent", 
+                sql: "None",
+                implementation: "📖 Auto Spell Learning",
+                description: "Comprehensive auto-learning system that automatically teaches players appropriate spells/abilities when they level up. Covers all classes from level 1-80 with complete spell lists, dual spec learning, and riding skills.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/",
+                files: ["Abilities levelup v2.lua (36KB, 1012 lines)"],
+                size: "36KB",
+                notes: "Auto-learns dual specialization, riding skills, and Cold Weather Flying. Configurable max level instant learning. Complete class spell databases."
+            },
+            {
+                name: "GearSet Automatic",
+                pack: "Isidorsson",
+                category: "Gear Management",
+                quality: "Good",
+                sql: "None",
+                implementation: "⚙️ Auto Gear System",
+                description: "Automatic gear set management system for all class and spec combinations. Pre-configured templates for optimal gear setups with automatic equipment based on class/spec selection.",
+                author: "Isidorsson Development Team", 
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/",
+                files: ["GearSetAutomatic.lua (25KB, 797 lines)"],
+                size: "25KB",
+                notes: "Templates for all class/spec combinations. Requires manual item ID configuration. Recommend setting item sell prices to 0."
+            },
+            {
+                name: "Gold Enchant System",
+                pack: "Isidorsson",
+                category: "Enchanting System",
+                quality: "Good",
+                sql: "Required",
+                implementation: "✨ Gold Enchanting",
+                description: "Advanced enchanting system allowing players to enchant items using gold instead of traditional materials. Provides convenient alternative to standard enchanting mechanics.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/",
+                files: ["goldEnchant.lua (11KB, 268 lines)"],
+                size: "11KB",
+                notes: "Gold-based enchanting system. Alternative to material-based enchanting for solo server convenience."
+            },
+            {
+                name: "Death Knight Mission System v2", 
+                pack: "Isidorsson",
+                category: "Class System",
+                quality: "Good",
+                sql: "Required",
+                implementation: "⚔️ DK Mission System",
+                description: "Specialized mission system for Death Knight characters with custom quests, objectives, and rewards. Enhanced version with improved functionality and expanded content.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/",
+                files: ["npc_mission_dk v2.lua (13KB, 334 lines)"],
+                size: "13KB",
+                notes: "Death Knight specific mission system. Version 2 with enhanced features and expanded content over original version."
+            },
+            {
+                name: "Quest Auto Complete",
+                pack: "Isidorsson",
+                category: "Quest System",
+                quality: "Good",
+                sql: "None",
+                implementation: "📋 Auto Quest System",
+                description: "Automatically completes quests for players, providing convenient quest progression without manual turn-ins. Useful for solo server rapid progression and testing.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/",
+                files: ["QuestAutoComplete.lua (2.9KB, 81 lines)"],
+                size: "2.9KB",
+                notes: "Automated quest completion system. Useful for solo server convenience and rapid character progression."
+            },
+            {
+                name: "Quest Complete Gold v2",
+                pack: "Isidorsson",
+                category: "Quest System", 
+                quality: "Good",
+                sql: "None",
+                implementation: "💰 Quest Gold Rewards",
+                description: "Enhanced quest completion system that provides gold rewards for completed quests. Version 2 with improved reward calculations and additional features.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/",
+                files: ["Quest complete gold v2.lua (3.5KB, 90 lines)"],
+                size: "3.5KB",
+                notes: "Version 2 of quest gold reward system. Enhanced reward calculations and improved functionality over original version."
+            },
+            {
+                name: "Teleport to Vein",
+                pack: "Isidorsson",
+                category: "Teleport System",
+                quality: "Good",
+                sql: "None",
+                implementation: "🚀 Mining Teleport",
+                description: "Convenience teleportation system for miners, allowing instant travel to mineral vein locations. Enhances solo server mining experience with rapid node access.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/",
+                files: ["teleportToVein.lua (2.6KB, 117 lines)"],
+                size: "2.6KB",
+                notes: "Mining convenience feature. Instant teleportation to mineral veins for enhanced solo server resource gathering."
+            },
+            {
+                name: "Max Skill System",
+                pack: "Isidorsson",
+                category: "Skill System",
+                quality: "Good",
+                sql: "None",
+                implementation: "📈 Skill Maxing",
+                description: "Instantly maximizes player skills to their level-appropriate caps. Convenience feature for solo servers to skip tedious skill grinding.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/",
+                files: ["Max skill.lua (596B, 17 lines)"],
+                size: "596B",
+                notes: "Instant skill maximization. Small utility script for solo server convenience and character progression acceleration."
+            },
+            {
+                name: "Weapon Master System",
+                pack: "Isidorsson",
+                category: "Weapon System",
+                quality: "Good",
+                sql: "None",
+                implementation: "⚔️ Weapon Training",
+                description: "Automated weapon skill training system allowing players to quickly learn all weapon types. Eliminates the need for manual weapon master visits.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/",
+                files: ["Weapon Master.lua (2.2KB, 72 lines)"],
+                size: "2.2KB",
+                notes: "Automated weapon training. Eliminates manual weapon master visits for solo server convenience."
+            },
+            {
+                name: "Item Upgrader System",
+                pack: "Isidorsson",
+                category: "Item System",
+                quality: "Excellent",
+                sql: "Required",
+                implementation: "🔧 Item Upgrading",
+                description: "Advanced item upgrading system with database-driven upgrade paths, class restrictions, and paginated UI. Features visual interface with screenshots, cost calculations, and chance-based upgrades.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Systems/item-upgrader/",
+                files: ["item-upgrade.lua (11KB, 331 lines)", "readme.md", "3 screenshots"],
+                size: "11KB + images",
+                notes: "Database-driven item upgrade system with visual UI. Includes class restrictions, upgrade costs, and success chance mechanics."
+            },
+            {
+                name: "Lottery System",
+                pack: "Isidorsson",
+                category: "Game System",
+                quality: "Excellent",
+                sql: "Required",
+                implementation: "🎰 Weekly Lottery",
+                description: "Comprehensive weekly lottery system with database storage for tickets and numbers. Features game event integration, automatic prize distribution via mail, and multi-player participation.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/",
+                files: ["lotteryDB.lua (14KB, 349 lines)"],
+                size: "14KB",
+                notes: "Weekly lottery with game event integration. Creates lottery and lottery_tickets tables. Distributes winnings via in-game mail system."
+            },
+            {
+                name: "Professional Enchanter NPC",
+                pack: "Isidorsson",
+                category: "NPC System",
+                quality: "Excellent",
+                sql: "None",
+                implementation: "🧙 Enchanting NPC",
+                description: "Comprehensive enchanting NPC with organized menus for all equipment slots. Covers headpiece, shoulders, chest, legs, boots, bracers, gloves, cloak, weapons, shields, and ranged items with WotLK enchants.",
+                author: "Foereaper, rochet, Clotic",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/",
+                files: ["Enchanter.lua (8.7KB, 246 lines)"],
+                size: "8.7KB",
+                notes: "Complete enchanting service with organized menus. Covers all equipment slots with appropriate WotLK-era enchantments."
+            },
+            {
+                name: "Buff on Chat Command",
+                pack: "Isidorsson",
+                category: "Chat System",
+                quality: "Good",
+                sql: "None",
+                implementation: "💬 Chat Buffs",
+                description: "Chat command system allowing players to buff themselves or others using '#buff' command. Includes multiple beneficial buffs with gold cost requirement and GM rank restrictions.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/",
+                files: ["BuffOnChat.lua (1.8KB, 60 lines)"],
+                size: "1.8KB",
+                notes: "Chat command buff system with gold cost (1000000 copper default). Includes arena prep, stat bonuses, and various beneficial effects."
+            },
+            {
+                name: "Phase Switch System",
+                pack: "Isidorsson",
+                category: "Phase System",
+                quality: "Good",
+                sql: "None",
+                implementation: "🌍 Phase Management",
+                description: "Allows players to switch between different game phases for isolation or group content. Simple phase management system for solo server customization.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/",
+                files: ["PhaseSwitch.lua (1.3KB, 44 lines)"],
+                size: "1.3KB",
+                notes: "Basic phase switching functionality. Useful for solo server content isolation or custom events."
+            },
+            {
+                name: "NPC Buff on Sight",
+                pack: "Isidorsson",
+                category: "NPC System",
+                quality: "Good",
+                sql: "None",
+                implementation: "👁️ Auto Buff NPC",
+                description: "NPC that automatically buffs players when they come within range. Provides convenient buffing without manual interaction, ideal for solo server quality of life.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/",
+                files: ["NpcBuffOnSight.lua (1.8KB, 60 lines)"],
+                size: "1.8KB",
+                notes: "Automatic buffing NPC with proximity detection. No interaction required - buffs applied when player approaches."
+            },
+            {
+                name: "Jump to Target",
+                pack: "Isidorsson",
+                category: "Movement System",
+                quality: "Good",
+                sql: "None",
+                implementation: "🦘 Teleport Jump",
+                description: "Allows players to instantly jump/teleport to their current target. Convenience feature for quick movement and positioning in solo server environments.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/",
+                files: ["JumpToTarget.lua (701B, 21 lines)"],
+                size: "701B",
+                notes: "Simple target-based teleportation. Small utility script for enhanced solo server mobility."
+            },
+            {
+                name: "Drop Loot on Kill Area",
+                pack: "Isidorsson",
+                category: "Loot System",
+                quality: "Good",
+                sql: "None",
+                implementation: "💎 Area Loot Drop",
+                description: "Custom loot dropping system that spawns additional loot in specific areas when creatures are killed. Enhances farming and resource gathering in designated zones.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/",
+                files: ["DropLootOnKillArea.lua (844B, 26 lines)"],
+                size: "844B",
+                notes: "Zone-specific loot enhancement. Adds custom drops in designated areas for improved farming experience."
+            },
+            {
+                name: "Prestige Arena System",
+                pack: "Isidorsson",
+                category: "PvP System",
+                quality: "Good",
+                sql: "None",
+                implementation: "🏆 Arena Prestige",
+                description: "Arena prestige system with 2000+ rating tracking and special rewards. Enhances PvP progression with additional achievement layers beyond standard arena ratings.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/",
+                files: ["PrestigeArena2k.lua (1.1KB, 31 lines)"],
+                size: "1.1KB",
+                notes: "Extended arena progression system. Adds prestige levels for high-rating arena players with special recognition."
+            },
+            {
+                name: "Zone Auras ReCast Random",
+                pack: "Isidorsson",
+                category: "Zone System",
+                quality: "Fair",
+                sql: "None",
+                implementation: "✨ Random Zone Auras",
+                description: "Applies random auras to players in specific zones. Creates dynamic zone effects with varying buff/debuff applications for enhanced gameplay variety.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/",
+                files: ["ZoneAurasReCastRandom.lua (455B, 18 lines)"],
+                size: "455B",
+                notes: "Random zone-based aura system. Very small utility script for adding dynamic zone effects."
+            },
+            {
+                name: "1v1 Phasing Arena System",
+                pack: "Isidorsson",
+                category: "PvP System",
+                quality: "Excellent",
+                sql: "Required",
+                implementation: "⚔️ Advanced Arena",
+                description: "Comprehensive 1v1 arena system with phasing technology, level brackets, queue management, multiple arena locations, reward distribution, and database integration. Features position saving, fight tracking, and custom reward calculations.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/fight-master-brackets/",
+                files: ["1v1Phasing.lua (23KB, 907 lines)", "readme.md", "2 screenshots"],
+                size: "23KB + images",
+                notes: "Advanced arena system with phasing, multiple brackets, queue system, and custom rewards. Includes Gurubashi Arena integration."
+            },
+            {
+                name: "Mythic Dungeon System",
+                pack: "Isidorsson",
+                category: "Dungeon System",
+                quality: "Excellent",
+                sql: "Required",
+                implementation: "🏛️ Mythic+ Dungeons",
+                description: "Complete Mythic+ dungeon system with keystone levels 1-10, affix mechanics, scaling rewards, boss tracking, and group synchronization. Features custom loot tables, level progression, and mythic keystone requirements.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Mythic Dungeon & Raid/",
+                files: ["mDungeon.lua (26KB, 712 lines)"],
+                size: "26KB",
+                notes: "Full M+ system with 10 keystone levels, custom affixes (spells 82189-82198), and scaling reward system. Requires mythic keystone item."
+            },
+            {
+                name: "Time Rift World Event",
+                pack: "Isidorsson",
+                category: "World Event",
+                quality: "Excellent",
+                sql: "None",
+                implementation: "🌀 Dynamic Rifts",
+                description: "Dynamic world event system that spawns time rifts with creatures across multiple locations. Features timed portal spawning, creature AI, automatic despawning, and admin commands for portal management.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Time Rift/",
+                files: ["timeRift.lua (7KB, 178 lines)"],
+                size: "7KB",
+                notes: "World event with 3 rift locations, 2-minute portal duration, automatic creature spawning, and '#removePortals' admin command."
+            },
+            {
+                name: "PermaDeath Hardcore Mode",
+                pack: "Isidorsson",
+                category: "Game Mode",
+                quality: "Good",
+                sql: "None",
+                implementation: "💀 Hardcore Mode",
+                description: "Classic hardcore mode that permanently locks characters upon death. Features world announcements, character banning system, and GM immunity for testing purposes.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Hardcore/",
+                files: ["PermaDeath.lua (1KB, 32 lines)"],
+                size: "1KB",
+                notes: "Simple but effective permadeath system. Bans character on death with world announcements. GM rank 1+ immune."
+            },
+            {
+                name: "Racial Switch System",
+                pack: "Isidorsson",
+                category: "Character System",
+                quality: "Good",
+                sql: "None",
+                implementation: "🧬 Racial Changing",
+                description: "NPC-based racial switching system allowing players to change racial abilities. Supports all WotLK races with proper spell learning/unlearning, class-specific handling, and cost customization.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Racial Switch/",
+                files: ["RaciaSwitch.lua (4.2KB, 119 lines)", "3 older versions"],
+                size: "4.2KB + variants",
+                notes: "Complete racial system covering all races. Handles Blood Elf power types and Orc class-specific abilities correctly."
+            },
+            {
+                name: "Gold Realm Economy Tracker",
+                pack: "Isidorsson",
+                category: "Economy System",
+                quality: "Good",
+                sql: "None",
+                implementation: "💰 Economy Monitor",
+                description: "NPC that displays server economy statistics including gold circulation and top 10 wealthiest players. Features real-time updates and wealth distribution visualization for server monitoring.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Npc/",
+                files: ["goldRealm.lua (2.5KB, 65 lines)"],
+                size: "2.5KB",
+                notes: "Economy monitoring tool showing gold circulation and wealth distribution. Updates via player interaction and database queries."
+            },
+            {
+                name: "Wood Cutting Profession",
+                pack: "Isidorsson",
+                category: "Profession System",
+                quality: "Fair",
+                sql: "None",
+                implementation: "🪓 Custom Profession",
+                description: "Custom wood cutting profession system with skill advancement and tree-based resource gathering. Framework for expanding into full forestry profession with configurable loot tables.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Profession/",
+                files: ["woodCutting.lua (1.1KB, 43 lines)"],
+                size: "1.1KB",
+                notes: "Basic profession framework. Requires configuration of spell IDs, skill IDs, and tree/loot mappings to function."
+            },
+            {
+                name: "Boss Script Collection",
+                pack: "Isidorsson",
+                category: "Boss System",
+                quality: "Good",
+                sql: "None",
+                implementation: "👹 Custom Bosses",
+                description: "Collection of custom boss scripts including Lich King, Hogger, Headless Horseman, and others. Features multi-phase encounters, custom abilities, dialogue systems, and AI mechanics.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Boss script testing/",
+                files: ["7 boss scripts (1.4KB-4KB each)", "LichKing, Hogger, HeadlessHorseman, etc."],
+                size: "~15KB total",
+                notes: "Collection of 7 custom boss encounters. Most scripts commented out - require NPC ID configuration for activation."
+            },
+            {
+                name: "Prayer NPC Systems",
+                pack: "Isidorsson",
+                category: "NPC System",
+                quality: "Good",
+                sql: "None",
+                implementation: "🙏 Prayer NPCs",
+                description: "Collection of prayer-based NPC systems including obelisk prayers and NPC worship mechanics. Provides blessing systems and religious gameplay elements for enhanced roleplay.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Npc/",
+                files: ["prayObilisk.lua (2.6KB)", "prayToNpc.lua (1.9KB)"],
+                size: "4.5KB total",
+                notes: "Religious/blessing NPC systems. Obelisk prayer system and NPC worship mechanics for enhanced roleplay elements."
+            },
+            {
+                name: "Corruption System",
+                pack: "Isidorsson",
+                category: "Item System",
+                quality: "Excellent",
+                sql: "None",
+                implementation: "☠️ Corruption Mechanic",
+                description: "Advanced corruption system that applies stacking debuffs based on equipped items. Features dynamic corruption tracking, spell-based debuff application, and equipment-based corruption calculation with real-time updates.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Systems/corruption/",
+                files: ["Corruption.lua (5.3KB, 150 lines)"],
+                size: "5.3KB",
+                notes: "Item-based corruption system with stacking debuffs. Real-time equipment monitoring and graduated corruption effects based on total stack count."
+            },
+            {
+                name: "Path of Exile Map Device",
+                pack: "Isidorsson",
+                category: "Instance System",
+                quality: "Good",
+                sql: "None",
+                implementation: "🗺️ Map Portal System",
+                description: "Path of Exile inspired map device system that creates portal rings for instanced content. Features gold-cost activation, 6-portal spawning pattern, phase-based instance creation, and portal depletion mechanics.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Path of exile ish portal with phasing WIP/",
+                files: ["MapDevice.lua (3.1KB, 100 lines)"],
+                size: "3.1KB",
+                notes: "PoE-style portal system with 6-portal ring spawning. Work in progress with phase-based instances and gold activation cost."
+            },
+            {
+                name: "Test Stack Amount Utility",
+                pack: "Isidorsson",
+                category: "Debug System",
+                quality: "Fair",
+                sql: "None",
+                implementation: "🔧 Stack Testing",
+                description: "Development utility for testing aura stack mechanics. Allows testing stack application and increment via chat command '#stack' with configurable stack amounts and maximum limits.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/",
+                files: ["TestStackAmount.lua (821B, 24 lines)"],
+                size: "821B",
+                notes: "Debug utility for aura stack testing. Small development tool with 255 stack maximum and +3 increment per use."
+            },
+            {
+                name: "Token Gear Set System",
+                pack: "Isidorsson",
+                category: "Gear System",
+                quality: "Excellent",
+                sql: "Required",
+                implementation: "🎫 Tier Token System",
+                description: "Massive tier token system supporting all classes and specs with level 80 gear templates. Features complete equipment slot management, talent-based gear selection, and tier token consumption mechanics.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/tokenGearSet/",
+                files: ["tokenGearSet.lua (36KB, 761 lines)", "readme.md"],
+                size: "36KB",
+                notes: "Comprehensive tier token system with complete class/spec templates. Requires tier token items and database configuration."
+            },
+            {
+                name: "VIP Command System",
+                pack: "Isidorsson",
+                category: "VIP System",
+                quality: "Excellent",
+                sql: "Required",
+                implementation: "👑 VIP Commands",
+                description: "Comprehensive VIP system with 15+ commands including buff, reset instances, talents, repair, max skills, mall teleport, bank access, and account-wide VIP propagation. Features VIP certificate item activation.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/VIP/",
+                files: ["vip.lua (18KB, 379 lines)", "README.md", "old vip/ (archived versions)"],
+                size: "18KB",
+                notes: "Full-featured VIP system with account-wide propagation. Includes SQL for VIP certificate item creation and complete command suite."
+            },
+            {
+                name: "Gold Storage Banking System",
+                pack: "Isidorsson",
+                category: "Banking System",
+                quality: "Excellent",
+                sql: "Required",
+                implementation: "💰 Gold Banking",
+                description: "Advanced gold storage system with NPC banking interface, wealth leaderboards showing top 5 players, account-based storage, and visual interface screenshots. Features comma-formatted large number display.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/GoldStorage/",
+                files: ["GoldStorage.lua (4.1KB, 121 lines)", "readme.md", "2 screenshots"],
+                size: "4.1KB + images",
+                notes: "Professional banking system with leaderboards and visual interface. Creates custom_gold_storage table for account-based storage."
+            },
+            {
+                name: "Auto Equip Gear System",
+                pack: "Isidorsson",
+                category: "Gear System",
+                quality: "Good",
+                sql: "Required",
+                implementation: "⚙️ NPC Gear Equip",
+                description: "NPC-based automatic gear equipping system with class/spec recognition, equipment slot management, inventory handling, and mail backup for full bags. Features visual interface with spec icons.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/autoEquipGear/",
+                files: ["npcSlotItem.lua (11KB, 304 lines)", "slotitem.lua (8.6KB, 245 lines)", "screenshots"],
+                size: "19.6KB + images",
+                notes: "Professional gear equipping system with class/spec detection. Includes inventory management and mail fallback for full bags."
+            },
+            {
+                name: "SQL Zone Buffer System",
+                pack: "Isidorsson",
+                category: "Zone System",
+                quality: "Excellent",
+                sql: "Required",
+                implementation: "🗺️ Zone Management",
+                description: "Advanced zone buffer system with SQL database integration for zone-based functionality. Large-scale zone management with 527 lines of code and visual interface documentation.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/zone/sql version/",
+                files: ["sqlZoneBuffer.lua (19KB, 527 lines)", "sqlZoneBuffer.png", "readme.md", "old versions/"],
+                size: "19KB + images",
+                notes: "Major zone management system with SQL integration. Multiple versions available with comprehensive documentation."
+            },
+            {
+                name: "Druid Morph System",
+                pack: "Isidorsson",
+                category: "Morph System",
+                quality: "Good",
+                sql: "None",
+                implementation: "🐻 Druid Forms",
+                description: "Chat-activated druid form morphing system allowing druids to change their form appearances. Supports Bear, Cat, Aquatic, Travel, and Flight forms with race-specific variants for Night Elf and Tauren cats.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/DruidMorph/",
+                files: ["druidMorph.lua (4.3KB, 126 lines)"],
+                size: "4.3KB",
+                notes: "Form-specific morph system with '#druidmorph' command. Race-specific cat form variants with visual customization options."
+            },
+            {
+                name: "Jail System v2",
+                pack: "Isidorsson",
+                category: "Admin System",
+                quality: "Excellent",
+                sql: "None",
+                implementation: "🔒 Player Jail",
+                description: "Advanced player jail system with account-wide enforcement, automatic zone restriction, GM commands (.jail/.unjail), and teleport prevention. Features team-based unjail locations and persistent character locking.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/Commands/",
+                files: ["jail v2.lua (6KB, 141 lines)", "jail v1.lua (3.6KB, 101 lines)"],
+                size: "6KB (v2)",
+                notes: "Account-wide jail system with zone restriction enforcement. Automatically jails new characters and prevents teleport abuse."
+            },
+            {
+                name: "Creature Addon Commands",
+                pack: "Isidorsson",
+                category: "Admin System",
+                quality: "Excellent",
+                sql: "Required",
+                implementation: "🔧 NPC Modification",
+                description: "Advanced creature modification system allowing GMs to set NPC emotes, auras, and mounts through chat commands. Features database integration with creature_addon table and persistent NPC customization.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/Commands/",
+                files: ["creatureAddonCommands.lua (8.7KB, 244 lines)"],
+                size: "8.7KB",
+                notes: "Professional NPC customization with '#set npcemote/npcaura/npcmount ID' commands. Database-persistent modifications."
+            },
+            {
+                name: "Stack Aura Command",
+                pack: "Isidorsson",
+                category: "Admin System",
+                quality: "Good",
+                sql: "None",
+                implementation: "⚡ Aura Stacking",
+                description: "GM command utility for adding and managing stackable auras on players. Useful for testing spell effects and providing temporary buffs with configurable stack amounts.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/Commands/",
+                files: ["stackAura.lua (2KB, 55 lines)"],
+                size: "2KB",
+                notes: "Simple aura stacking command for GM testing and player buff management."
+            },
+            {
+                name: "Teleport to GUID NPC",
+                pack: "Isidorsson",
+                category: "Admin System",
+                quality: "Good",
+                sql: "None",
+                implementation: "🚀 GUID Teleport",
+                description: "Admin command to teleport directly to NPCs using their GUID. Useful for server administration and debugging creature spawn issues.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/Commands/",
+                files: ["teleportToGuidNpc.lua (1.8KB, 52 lines)"],
+                size: "1.8KB",
+                notes: "GUID-based NPC teleportation for precise admin navigation and creature debugging."
+            },
+            {
+                name: "LUA to JSON Coordinates",
+                pack: "Isidorsson",
+                category: "Development Tool",
+                quality: "Good",
+                sql: "None",
+                implementation: "📊 Coordinate Export",
+                description: "Development utility that converts LUA coordinate data to JSON format. Essential tool for data migration, coordinate sharing, and integration with external tools and databases.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/Commands/",
+                files: ["luaToJsonCoords.lua (6.5KB, 218 lines)"],
+                size: "6.5KB",
+                notes: "Data conversion tool for coordinate systems. Facilitates data export and external tool integration."
+            },
+            {
+                name: "Move to GUID Command",
+                pack: "Isidorsson",
+                category: "Admin System",
+                quality: "Good",
+                sql: "None",
+                implementation: "🎯 GUID Movement",
+                description: "Admin command for moving players or objects to specific GUID locations. Precise positioning tool for server administration and event management.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/Commands/",
+                files: ["moveToGuid.lua (2KB, 62 lines)"],
+                size: "2KB",
+                notes: "GUID-based movement command for precise positioning and admin convenience."
+            },
+            {
+                name: "Copy Gear from Player",
+                pack: "Isidorsson",
+                category: "Admin System",
+                quality: "Good",
+                sql: "None",
+                implementation: "📋 Gear Copying",
+                description: "GM utility to copy equipment from one player to another. Useful for character setup, testing gear combinations, and player assistance.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/Commands/",
+                files: ["copyGearFromPlayer.lua (1.2KB, 42 lines)"],
+                size: "1.2KB",
+                notes: "Equipment duplication tool for character setup and gear testing scenarios."
+            },
+            {
+                name: "Send Mail Command",
+                pack: "Isidorsson",
+                category: "Admin System",
+                quality: "Good",
+                sql: "None",
+                implementation: "📧 Mail System",
+                description: "GM command for sending in-game mail to players with items and messages. Essential administrative tool for player support and item distribution.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/Commands/",
+                files: ["SendMail.lua (1.7KB, 69 lines)"],
+                size: "1.7KB",
+                notes: "Administrative mail system for player communication and item delivery."
+            },
+            {
+                name: "Goldfix Commands",
+                pack: "Isidorsson",
+                category: "Admin System",
+                quality: "Fair",
+                sql: "None",
+                implementation: "💰 Gold Adjustment",
+                description: "Simple gold adjustment commands for targeting players and self. Basic economic administration tools for correcting player gold amounts.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/Commands/",
+                files: ["Goldfix SelectTarget.lua (873B)", "Goldfix self.lua (677B)"],
+                size: "1.5KB total",
+                notes: "Basic gold modification commands for economic administration and player assistance."
+            },
+            {
+                name: "Delete Object in Range",
+                pack: "Isidorsson",
+                category: "Admin System",
+                quality: "Good",
+                sql: "None",
+                implementation: "🗑️ Object Cleanup",
+                description: "Admin command to delete objects within a specified range. Essential for server cleanup, removing unwanted spawns, and maintaining clean environments.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/Commands/",
+                files: ["DeleteObjectInRange.lua (1.8KB, 48 lines)"],
+                size: "1.8KB",
+                notes: "Range-based object deletion for server maintenance and environment cleanup."
+            },
+            {
+                name: "Gender Change Command",
+                pack: "Isidorsson",
+                category: "Admin System",
+                quality: "Good",
+                sql: "None",
+                implementation: "⚧ Gender Toggle",
+                description: "GM command allowing players to change character gender. Character customization tool for player convenience and roleplay enhancement.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/Commands/",
+                files: ["Gender.lua (1.1KB, 36 lines)"],
+                size: "1.1KB",
+                notes: "Character gender modification for customization and roleplay purposes."
+            },
+            {
+                name: "Get Coordinates Command",
+                pack: "Isidorsson",
+                category: "Development Tool",
+                quality: "Good",
+                sql: "None",
+                implementation: "📍 Position Info",
+                description: "Simple utility to display current player coordinates. Essential development tool for location mapping, spawn positioning, and coordinate documentation.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/Commands/",
+                files: ["GetCords.lua (658B, 21 lines)"],
+                size: "658B",
+                notes: "Basic coordinate display utility for development and mapping purposes."
+            },
+            {
+                name: "Jail System v1",
+                pack: "Isidorsson",
+                category: "Admin System",
+                quality: "Good",
+                sql: "Optional",
+                implementation: "🔒 Player Jail v1",
+                description: "Original version of player jail system for temporary punishment. Basic jail functionality with location teleportation and movement restriction. Predecessor to the enhanced v2 system.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/Commands/",
+                files: ["jail v1.lua (3.6KB, 101 lines)"],
+                size: "3.6KB",
+                notes: "Original jail system implementation. Less feature-rich than v2 but functional for basic player discipline."
+            },
+            {
+                name: "Morph Window System",
+                pack: "Isidorsson",
+                category: "Visual System",
+                quality: "Good",
+                sql: "None",
+                implementation: "🎭 Appearance Change",
+                description: "Advanced morphing system allowing players to change their appearance through an interface window. Comprehensive visual customization with multiple morph options and appearance presets.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/Commands/Morph Window/",
+                files: ["Multiple morph system files"],
+                size: "Unknown",
+                notes: "Complete visual transformation system with interface window for player customization and appearance modification."
+            },
+            {
+                name: "Spanish DK Missions",
+                pack: "Isidorsson",
+                category: "Class System",
+                quality: "Good",
+                sql: "Required",
+                implementation: "⚔️ DK Misiones",
+                description: "Spanish language version of Death Knight mission system with custom quests and objectives. Localized content for Spanish-speaking communities with enhanced DK progression.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/",
+                files: ["npc_misiones_dk.lua (5.6KB, 182 lines)"],
+                size: "5.6KB",
+                notes: "Spanish localization of DK mission system. Alternative language support for international communities."
+            },
+            {
+                name: "Spawn NPC Temporary",
+                pack: "Isidorsson",
+                category: "Admin System",
+                quality: "Good",
+                sql: "None",
+                implementation: "👥 Temp NPC Spawn",
+                description: "Admin utility for spawning temporary NPCs with timed despawn. Useful for events, testing, and temporary content without permanent database changes.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/",
+                files: ["spawnNpcTemp.lua (1.7KB, 51 lines)"],
+                size: "1.7KB",
+                notes: "Temporary NPC spawning for events and testing. No permanent database modifications required."
+            },
+            {
+                name: "Add Reputation with Tabard",
+                pack: "Isidorsson",
+                category: "Reputation System",
+                quality: "Good",
+                sql: "None",
+                implementation: "🏴 Tabard Rep",
+                description: "System that grants reputation based on equipped tabard. Enhances tabard functionality by providing faction reputation gains while wearing specific faction tabards.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/",
+                files: ["addRepToPlayerWIthTabard.lua (1KB, 34 lines)"],
+                size: "1KB",
+                notes: "Tabard-based reputation system. Automatic reputation gains based on equipped faction tabards."
+            },
+            {
+                name: "Quest Complete Gold v1",
+                pack: "Isidorsson",
+                category: "Quest System",
+                quality: "Good",
+                sql: "None",
+                implementation: "💰 Quest Gold v1",
+                description: "Original version of quest gold reward system. Provides gold rewards for completed quests with basic reward calculations and quest completion tracking.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/",
+                files: ["Quest complete gold version.lua (2.5KB, 67 lines)"],
+                size: "2.5KB",
+                notes: "Original quest gold system. Simpler version compared to v2 with basic reward mechanics."
+            },
+            {
+                name: "Mass Guild Invite Systems",
+                pack: "Isidorsson",
+                category: "Guild System",
+                quality: "Good",
+                sql: "None",
+                implementation: "👥 Mass Guild Invite",
+                description: "Dual system for mass guild invitations with slight variations. Allows guild leaders to invite multiple players simultaneously for rapid guild building and recruitment.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/",
+                files: ["MassGuildInvite.lua (982B)", "MassInviteGuild.lua (955B)"],
+                size: "1.9KB total",
+                notes: "Mass recruitment tools with two implementation variants. Facilitates rapid guild growth and member management."
+            },
+            {
+                name: "Gear Set Vendor",
+                pack: "Isidorsson",
+                category: "Gear System",
+                quality: "Good",
+                sql: "None",
+                implementation: "🛒 Gear Vendor",
+                description: "NPC vendor system for complete gear sets. Alternative to automatic gear systems, allowing players to purchase pre-configured gear sets from vendors.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/",
+                files: ["GearSetVendor.lua (7KB, 131 lines)"],
+                size: "7KB",
+                notes: "Vendor-based gear set system. Alternative approach to automatic gear systems with purchase mechanics."
+            },
+            {
+                name: "Abilities Level Up v1",
+                pack: "Isidorsson",
+                category: "Auto Learning",
+                quality: "Good",
+                sql: "None",
+                implementation: "📖 Auto Spells v1",
+                description: "Original version of automatic spell learning system. Teaches players appropriate spells and abilities when leveling up, predecessor to the enhanced v2 system.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/",
+                files: ["Abilities level up.lua (21KB, 526 lines)"],
+                size: "21KB",
+                notes: "Original auto-learning system. Substantial system with 526 lines, basis for the enhanced v2 version."
+            },
+            {
+                name: "AzerothCore Multi-Vendor System",
+                pack: "Ornfelt",
+                category: "Vendor System",
+                quality: "Good",
+                sql: "Required",
+                implementation: "🛒 Multi Vendor",
+                description: "Vendor system allowing multiple items per vendor with enhanced functionality. Streamlines vendor management and provides more flexible item distribution options.",
+                author: "AzerothCore Community",
+                license: "AGPL-3.0",
+                location: "Script Packs/Ornfelt Script Pack/azerothcore_lua_scripts/lua/AzerothCore-lua-MultiVendor/",
+                files: ["MultiVendor.lua (1.6KB, 35 lines)", "SQL/ directory", "README.md"],
+                size: "1.6KB",
+                notes: "Note: Archive includes TrinityCore version. Requires SQL setup for vendor configurations."
+            },
+            {
+                name: "Starting NPC System",
+                pack: "Ornfelt",
+                category: "Character System",
+                quality: "Good",
+                sql: "Required",
+                implementation: "🚀 Character Start",
+                description: "NPC system for new character initialization and starting assistance. Provides guided character setup and initial resources for new players.",
+                author: "AzerothCore Community",
+                license: "Unknown",
+                location: "Script Packs/Ornfelt Script Pack/azerothcore_lua_scripts/lua/AzerothCore-Eluna-Scripts/",
+                files: ["Starting_NPC.lua (2.8KB, 64 lines)", "sql_import/ directory"],
+                size: "2.8KB",
+                notes: "Comprehensive starting experience for new characters with SQL import required."
+            },
+            {
+                name: "Global Mail Banking Auctions",
+                pack: "Ornfelt",
+                category: "Economy System",
+                quality: "Good",
+                sql: "Optional",
+                implementation: "📮 Global Services",
+                description: "Cross-server mail, banking, and auction house access system. Allows players to access these services globally without location restrictions, enhancing server accessibility.",
+                author: "AzerothCore Community",
+                license: "Unknown",
+                location: "Script Packs/Ornfelt Script Pack/azerothcore_lua_scripts/lua/azerothcore-global-mail_banking_auctions/",
+                files: ["Global Mail_Banking_Auctions.lua (3.8KB, 82 lines)", "README.md"],
+                size: "3.8KB",
+                notes: "Quality of life improvement removing location restrictions from essential services."
+            },
+            {
+                name: "Starting Zone Selector",
+                pack: "Ornfelt",
+                category: "Zone System",
+                quality: "Excellent",
+                sql: "Required",
+                implementation: "🗺️ Zone Choice",
+                description: "Advanced starting zone selection system with custom UI interface. Allows players to choose their starting zone regardless of race, with client-side UI enhancements via included patch file.",
+                author: "AzerothCore Community",
+                license: "Unknown",
+                location: "Script Packs/Ornfelt Script Pack/azerothcore_lua_scripts/lua/azerothcore-starting-zone-selector/",
+                files: ["zone_selector.lua (2.1KB)", "zone_selector_ui.lua (5.3KB)", "Patch-5.mpq (2.6MB)", "ZoneSelectorNPCs.sql (5.5KB)"],
+                size: "7.4KB + 2.6MB patch",
+                notes: "Professional system with client patch for enhanced UI. Includes NPC spawns and zone configurations."
+            },
+            {
+                name: "AzerothCore Trivia System",
+                pack: "Ornfelt",
+                category: "Game System",
+                quality: "Excellent",
+                sql: "Required",
+                implementation: "🧠 Trivia Game",
+                description: "Comprehensive trivia system with over 700 questions, achievements, titles, and custom DBC files. Features intelligent question rotation, scoring system, and reward mechanisms including custom titles and achievements.",
+                author: "AzerothCore Community",
+                license: "Unknown",
+                location: "Script Packs/Ornfelt Script Pack/azerothcore_lua_scripts/lua/azerothcore-trivia-system/",
+                files: ["Trivia.lua (50KB, 1255 lines)", "trivia.sql (81KB, 703 lines)", "Achievement.dbc (587KB)", "CharTitles.dbc (29KB)", "Achievement_Category.dbc (8.1KB)"],
+                size: "50KB + 698KB assets",
+                notes: "Major system with extensive database requirements and custom DBC files. Professional trivia implementation with achievements."
+            },
+            {
+                name: "Wowhead Integration Mod",
+                pack: "Ornfelt",
+                category: "Integration System",
+                quality: "Excellent",
+                sql: "Optional",
+                implementation: "🔗 Wowhead API",
+                description: "Full-stack Wowhead integration system with Python backend, Docker deployment, and Lua frontend. Provides server integration with Wowhead database for enhanced item/quest information and web interface.",
+                author: "AzerothCore Community",
+                license: "Unknown",
+                location: "Script Packs/Ornfelt Script Pack/azerothcore_lua_scripts/lua/azerothcore-wowhead-mod-lua/",
+                files: ["wowhead.lua (1.2KB)", "main.py (1.9KB)", "Docker setup", "Web assets", "Database integration"],
+                size: "1.2KB lua + Full Stack",
+                notes: "Complex full-stack system with web backend. Requires Docker deployment and Python environment setup."
+            },
+            {
+                name: "Auto Resurrection System",
+                pack: "Ornfelt",
+                category: "Utility System",
+                quality: "Fair",
+                sql: "None",
+                implementation: "💀 Auto Rez",
+                description: "Simple automatic resurrection system that revives players upon death. Basic utility script for removing death penalties and maintaining gameplay flow.",
+                author: "Acore Community",
+                license: "Unknown",
+                location: "Script Packs/Ornfelt Script Pack/azerothcore_lua_scripts/lua/Acore_AutoRez/",
+                files: ["Auto_Rez.lua (175B, 8 lines)", "README.md"],
+                size: "175B",
+                notes: "Minimal implementation with basic auto-resurrection functionality."
+            },
+            {
+                name: "Boss Timer System",
+                pack: "Ornfelt",
+                category: "Raid System",
+                quality: "Good",
+                sql: "Required",
+                implementation: "⏱️ Boss Timers",
+                description: "Advanced boss encounter timer system with database tracking. Monitors boss spawn times, death timers, and respawn schedules for raid content management and player information.",
+                author: "Acore Community",
+                license: "MIT",
+                location: "Script Packs/Ornfelt Script Pack/azerothcore_lua_scripts/lua/Acore_BossTimer/",
+                files: ["lua-boss-timer.lua (8.7KB, 150 lines)", "db/ directory", "README.md", "LICENSE"],
+                size: "8.7KB",
+                notes: "Comprehensive boss tracking with database persistence. Essential for raid scheduling and server management."
+            },
+            {
+                name: "CarbonCopy Character System",
+                pack: "Ornfelt",
+                category: "Character System",
+                quality: "Excellent",
+                sql: "Optional",
+                implementation: "👥 Character Clone",
+                description: "Advanced character cloning and copying system. Allows complete duplication of character stats, gear, spells, and progression. Useful for character backup, testing, or player assistance scenarios.",
+                author: "Acore Community",
+                license: "MIT",
+                location: "Script Packs/Ornfelt Script Pack/azerothcore_lua_scripts/lua/Acore_CarbonCopy/",
+                files: ["CarbonCopy.lua (38KB, 751 lines)", "README.md (3.8KB)", "LICENSE"],
+                size: "38KB",
+                notes: "Major character management system with comprehensive cloning capabilities. Professional-grade implementation."
+            },
+            {
+                name: "Custom World Boss Documentation",
+                pack: "Ornfelt",
+                category: "Documentation",
+                quality: "Fair",
+                sql: "Unknown",
+                implementation: "📚 Documentation",
+                description: "Documentation and visual assets for custom world boss system implementation. Contains images and setup instructions but no Lua implementation files.",
+                author: "Acore Community",
+                license: "MIT",
+                location: "Script Packs/Ornfelt Script Pack/azerothcore_lua_scripts/lua/Acore_CustomWorldboss/",
+                files: ["CustomWorldboss.png (463KB)", "icon.png (492KB)", "README.md (3.7KB)", "LICENSE"],
+                size: "Documentation only",
+                notes: "Documentation-only resource. No Lua implementation files present - may require separate implementation."
+            },
+            {
+                name: "Discord Notifier System",
+                pack: "Ornfelt",
+                category: "Integration System",
+                quality: "Good",
+                sql: "Optional",
+                implementation: "💬 Discord Bot",
+                description: "Discord integration system for server notifications and events. Sends automated messages to Discord channels for server events, player actions, and administrative notifications.",
+                author: "Acore Community",
+                license: "MIT",
+                location: "Script Packs/Ornfelt Script Pack/azerothcore_lua_scripts/lua/Acore_DiscordNotifier/",
+                files: ["main.lua (4.4KB, 146 lines)", "icon.png", "README.md", "LICENSE"],
+                size: "4.4KB",
+                notes: "Discord webhook integration for server event notifications. Requires Discord bot setup and webhook configuration."
+            },
+            {
+                name: "Eluna Testing Framework",
+                pack: "Ornfelt",
+                category: "Development Tool",
+                quality: "Excellent",
+                sql: "Required",
+                implementation: "🧪 Test Suite",
+                description: "Comprehensive Eluna testing framework with extensive test cases and database integration. Professional testing suite for validating Lua scripts, server functions, and database operations.",
+                author: "Acore Community",
+                license: "MIT",
+                location: "Script Packs/Ornfelt Script Pack/azerothcore_lua_scripts/lua/Acore_ElunaTest/",
+                files: ["elunatest.lua (42KB, 958 lines)", "database/ directory", "README.md (8.8KB)", "LICENSE"],
+                size: "42KB",
+                notes: "Major development tool with 958 lines of comprehensive testing. Essential for Lua script development and validation."
+            },
+            {
+                name: "Exchange NPC System",
+                pack: "Ornfelt",
+                category: "NPC System",
+                quality: "Excellent",
+                sql: "Required",
+                implementation: "🔄 Item Exchange",
+                description: "Advanced NPC-based item exchange and trading system. Allows players to exchange items, currencies, and resources through configurable NPC interfaces with database persistence.",
+                author: "Acore Community",
+                license: "MIT",
+                location: "Script Packs/Ornfelt Script Pack/azerothcore_lua_scripts/lua/Acore_ExchangeNpc/",
+                files: ["ExchangeNpc.lua (25KB, 601 lines)", "database/ directory", "scripts/ directory", "icon.png", "README.md"],
+                size: "25KB",
+                notes: "Professional exchange system with comprehensive trading mechanics and database integration."
+            },
+            {
+                name: "Event Scripts Collection",
+                pack: "Ornfelt",
+                category: "Event System",
+                quality: "Excellent",
+                sql: "Required",
+                implementation: "🎉 Event Pack",
+                description: "Comprehensive collection of 5 event systems: Custom World Boss (111KB), Fun Tools (30KB), Hide and Seek (9.3KB), Bonus Buffs (3.8KB), and Camera Teleport (3.1KB). Complete event management suite.",
+                author: "Acore Community",
+                license: "MIT",
+                location: "Script Packs/Ornfelt Script Pack/azerothcore_lua_scripts/lua/Acore_eventScripts/",
+                files: ["customWorldboss.lua (111KB, 2038 lines)", "funTools.lua (30KB, 778 lines)", "hideAndSeek.lua (9.3KB, 264 lines)", "bonusbuff.lua (3.8KB, 120 lines)", "camtele.lua (3.1KB, 92 lines)", "database/", "scripts/"],
+                size: "157KB total",
+                notes: "Massive event system collection with 5 major components. Professional-grade event management with extensive functionality."
+            },
+            {
+                name: "Hunter Pet Reset Utility",
+                pack: "Isidorsson",
+                category: "Class Utility",
+                quality: "Fair",
+                sql: "None",
+                implementation: "🏹 Pet Talents",
+                description: "Simple hunter utility to reset pet talent points. Basic functionality for hunter pet management and talent redistribution.",
+                author: "Isidorsson Development Team",
+                license: "Mixed",
+                location: "Script Packs/Isidorsson Script Pack/Eluna-scripts/Quality of life stuff/Hunter/",
+                files: ["reset_pet_talent.lua (660B, 24 lines)"],
+                size: "660B",
+                notes: "Simple pet talent reset utility. Basic hunter class support script for pet management."
+            },
+
+            // Custom Scripts
+            {
+                name: "Solo System Ideas",
+                pack: "Custom Scripts",
+                category: "Documentation",
+                quality: "Good",
+                sql: "None",
+                implementation: "📚 Documentation",
+                description: "A comprehensive 38KB document containing 1,266 lines of ideas and concepts for solo systems that could be implemented in AzerothCore. This serves as a design document and inspiration source for future script development.",
+                author: "Unknown",
+                license: "Unknown",
+                location: "Custom Scripts/",
+                files: ["Ideas for Solo Systems for AzerothCore.md (38KB, 1,266 lines)"],
+                size: "38KB",
+                notes: "Design document and inspiration source for future script development"
+            }
+        ];
+
+        // Initialize the application
+        $(document).ready(function() {
+            allScripts = [...scriptsData];
+            filteredScripts = [...scriptsData];
+            initializePagination();
+            renderCurrentPage();
+            updateAllStatistics();
+            
+            // Event listeners
+            $('#search-input').on('input', debounce(applyFiltersAndRender, 300));
+            $('#pack-filter, #quality-filter, #sql-filter, #category-filter, #favorites-filter').on('change', applyFiltersAndRender);
+            $('#sort-select').on('change', applyFiltersAndRender);
+            $('#per-page-select').on('change', changePerPage);
+            
+            // Heart button event listener (delegated) - handles 3 states
+            $(document).on('click', '.favorite-btn', function(e) {
+                e.preventDefault();
+                const scriptId = $(this).data('script-id');
+                const newStatus = toggleReviewStatus(scriptId);
+                const $card = $(this).closest('.script-card');
+                
+                // Update button appearance based on new status
+                const $icon = $(this).find('i');
+                const $button = $(this);
+                
+                // Remove specific icon classes but keep base 'bi' class
+                $icon.removeClass('bi-heart bi-heart-fill bi-heartbreak');
+                $button.removeClass('not-reviewed favorited dismissed');
+                $card.removeClass('dismissed-script favorited-script');
+                
+                // Add appropriate classes for new status (bi class + specific icon)
+                switch(newStatus) {
+                    case 'favorited':
+                        $icon.addClass('bi bi-heart-fill');
+                        $button.addClass('favorited');
+                        $card.addClass('favorited-script');
+                        $button.attr('title', 'Favorited - Remove from favorites');
+                        break;
+                    case 'dismissed':
+                        $icon.addClass('bi bi-heartbreak');
+                        $button.addClass('dismissed');
+                        $card.addClass('dismissed-script');
+                        $button.attr('title', 'Dismissed - Mark as not reviewed');
+                        break;
+                    default: // not-reviewed
+                        $icon.addClass('bi bi-heart');
+                        $button.addClass('not-reviewed');
+                        $button.attr('title', 'Not reviewed - Add to favorites');
+                }
+                
+                updateAllStatistics();
+                
+                // Re-filter if necessary
+                const currentFilter = $('#favorites-filter').val();
+                if (currentFilter && currentFilter !== '') {
+                    applyFiltersAndRender();
+                }
+            });
+            
+            // Card header click handler for expand/collapse
+            $(document).on('click', '.card-header', function(e) {
+                // Don't trigger if clicking on the heart button
+                if ($(e.target).closest('.favorite-btn').length > 0) {
+                    return;
+                }
+                
+                const $card = $(this).closest('.script-card');
+                const $cardBody = $card.find('.card-body');
+                
+                // Toggle card body visibility
+                if ($cardBody.is(':visible')) {
+                    $cardBody.slideUp(200);
+                } else {
+                    $cardBody.slideDown(200);
+                }
+            });
+        });
+
+        // Pagination functions
+        function initializePagination() {
+            scriptsPerPage = parseInt($('#per-page-select').val());
+            currentPage = 1;
+        }
+
+        function renderCurrentPage() {
+            const startIndex = (currentPage - 1) * scriptsPerPage;
+            const endIndex = startIndex + scriptsPerPage;
+            const pageScripts = filteredScripts.slice(startIndex, endIndex);
+            
+            const container = $('#scripts-container');
+            container.empty();
+            
+            if (pageScripts.length === 0 && filteredScripts.length > 0) {
+                // Reset to page 1 if current page is empty
+                currentPage = 1;
+                return renderCurrentPage();
+            }
+            
+            if (pageScripts.length === 0) {
+                container.html('<div class="alert alert-info">No scripts match your criteria.</div>');
+                return;
+            }
+            
+            pageScripts.forEach(script => {
+                const card = createScriptCard(script);
+                container.append(card);
+            });
+            
+            updatePaginationControls();
+            updatePageInfo();
+        }
+
+        function updatePaginationControls() {
+            const totalPages = Math.ceil(filteredScripts.length / scriptsPerPage);
+            const paginationHtml = generatePaginationHtml(totalPages);
+            
+            $('#pagination-controls').html(paginationHtml);
+            $('#pagination-controls-bottom').html(paginationHtml);
+        }
+
+        function generatePaginationHtml(totalPages) {
+            if (totalPages <= 1) return '';
+            
+            let html = '';
+            
+            // Previous button
+            html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                        <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
+                     </li>`;
+            
+            // Page numbers
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(totalPages, currentPage + 2);
+            
+            if (startPage > 1) {
+                html += `<li class="page-item"><a class="page-link" href="#" data-page="1">1</a></li>`;
+                if (startPage > 2) {
+                    html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                }
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+                            <a class="page-link" href="#" data-page="${i}">${i}</a>
+                         </li>`;
+            }
+            
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                }
+                html += `<li class="page-item"><a class="page-link" href="#" data-page="${totalPages}">${totalPages}</a></li>`;
+            }
+            
+            // Next button
+            html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                        <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
+                     </li>`;
+            
+            return html;
+        }
+
+        function updatePageInfo() {
+            const startIndex = (currentPage - 1) * scriptsPerPage + 1;
+            const endIndex = Math.min(currentPage * scriptsPerPage, filteredScripts.length);
+            const totalScripts = filteredScripts.length;
+            
+            const infoText = totalScripts === 0 ? 'No scripts found' : 
+                            `Showing ${startIndex}-${endIndex} of ${totalScripts} scripts`;
+            
+            $('#page-info').text(infoText);
+            $('#page-info-bottom').text(infoText);
+            $('#showing-count').text(Math.min(scriptsPerPage, totalScripts - startIndex + 1));
+        }
+
+        function createScriptCard(script) {
+            const qualityClass = getQualityClass(script.quality);
+            const sqlClass = getSqlClass(script.sql);
+            const scriptId = script.name.replace(/\s+/g, '-').toLowerCase();
+            const reviewStatus = getReviewStatus(scriptId);
+            
+            let heartIcon, heartClass, cardClass, tooltip;
+            
+            switch(reviewStatus) {
+                case 'favorited':
+                    heartIcon = 'bi-heart-fill';
+                    heartClass = 'favorited';
+                    cardClass = 'favorited-script';
+                    tooltip = 'Favorited - Remove from favorites';
+                    break;
+                case 'dismissed':
+                    heartIcon = 'bi-heartbreak';
+                    heartClass = 'dismissed';
+                    cardClass = 'dismissed-script';
+                    tooltip = 'Dismissed - Mark as not reviewed';
+                    break;
+                default: // not-reviewed
+                    heartIcon = 'bi-heart';
+                    heartClass = 'not-reviewed';
+                    cardClass = '';
+                    tooltip = 'Not reviewed - Add to favorites';
+            }
+            
+            return `
+                <div class="card script-card ${cardClass}" data-pack="${script.pack}" data-quality="${script.quality}" data-sql="${script.sql}" data-category="${script.category}" data-script-id="${scriptId}">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <h5 class="mb-0 me-2">${script.name}</h5>
+                            <button class="favorite-btn ${heartClass}" data-script-id="${scriptId}" title="${tooltip}">
+                                <i class="bi ${heartIcon}"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <span class="badge bg-secondary">${script.pack}</span>
+                            <span class="badge ${qualityClass}">${script.quality}</span>
+                            <span class="badge ${sqlClass}">SQL: ${script.sql}</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">${script.description}</p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <small class="text-muted">
+                                    <strong>Implementation:</strong> ${script.implementation}<br>
+                                    <strong>Category:</strong> ${script.category}<br>
+                                    <strong>Size:</strong> ${script.size}
+                                </small>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="text-muted">
+                                    <strong>Author:</strong> ${script.author}<br>
+                                    <strong>Location:</strong> <code>${script.location}</code><br>
+                                    ${script.notes ? `<strong>Notes:</strong> ${script.notes}` : ''}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getQualityClass(quality) {
+            const classes = {
+                'Excellent': 'bg-success',
+                'Good': 'bg-warning',
+                'Fair': 'bg-orange',
+                'Poor': 'bg-danger'
+            };
+            return classes[quality] || 'bg-secondary';
+        }
+
+        function getSqlClass(sql) {
+            const classes = {
+                'None': 'bg-success',
+                'Optional': 'bg-warning',
+                'Required': 'bg-danger'
+            };
+            return classes[sql] || 'bg-secondary';
+        }
+
+        function applyFiltersAndRender() {
+            const searchTerm = $('#search-input').val().toLowerCase();
+            const packFilter = $('#pack-filter').val();
+            const qualityFilter = $('#quality-filter').val();
+            const sqlFilter = $('#sql-filter').val();
+            const categoryFilter = $('#category-filter').val();
+            const reviewFilter = $('#favorites-filter').val();
+            const sortBy = $('#sort-select').val();
+            
+            // Start with all scripts
+            let filtered = [...allScripts];
+            
+            // Apply filters
+            filtered = filtered.filter(script => {
+                const scriptId = script.name.replace(/\s+/g, '-').toLowerCase();
+                const reviewStatus = getReviewStatus(scriptId);
+                
+                // Search filter
+                if (searchTerm) {
+                    const searchText = `${script.name} ${script.description} ${script.author} ${script.category} ${script.pack}`.toLowerCase();
+                    if (!searchText.includes(searchTerm)) {
+                        return false;
+                    }
+                }
+                
+                // Pack filter
+                if (packFilter && script.pack !== packFilter) {
+                    return false;
+                }
+                
+                // Quality filter
+                if (qualityFilter && script.quality !== qualityFilter) {
+                    return false;
+                }
+                
+                // SQL filter
+                if (sqlFilter && script.sql !== sqlFilter) {
+                    return false;
+                }
+                
+                // Category filter
+                if (categoryFilter && script.category !== categoryFilter) {
+                    return false;
+                }
+                
+                // Review status filter
+                if (reviewFilter === 'not-reviewed' && reviewStatus !== 'not-reviewed') {
+                    return false;
+                }
+                if (reviewFilter === 'favorites' && reviewStatus !== 'favorited') {
+                    return false;
+                }
+                if (reviewFilter === 'dismissed' && reviewStatus !== 'dismissed') {
+                    return false;
+                }
+                if (reviewFilter === 'reviewed' && reviewStatus === 'not-reviewed') {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            // Apply sorting
+            filtered = applySorting(filtered, sortBy);
+            
+            // Update filtered scripts and reset to page 1
+            filteredScripts = filtered;
+            currentPage = 1;
+            
+            // Render and update UI
+            renderCurrentPage();
+            updateAllStatistics();
+        }
+
+        function applySorting(scripts, sortBy) {
+            let sorted = [...scripts];
+            
+            switch (sortBy) {
+                case 'name':
+                    sorted.sort((a, b) => a.name.localeCompare(b.name));
+                    break;
+                case 'quality':
+                    const qualityOrder = { 'Excellent': 4, 'Good': 3, 'Fair': 2, 'Poor': 1 };
+                    sorted.sort((a, b) => qualityOrder[b.quality] - qualityOrder[a.quality]);
+                    break;
+                case 'pack':
+                    sorted.sort((a, b) => a.pack.localeCompare(b.pack));
+                    break;
+                case 'size':
+                    sorted.sort((a, b) => {
+                        const sizeA = a.size.includes('KB') ? parseFloat(a.size) : 0;
+                        const sizeB = b.size.includes('KB') ? parseFloat(b.size) : 0;
+                        return sizeB - sizeA;
+                    });
+                    break;
+                case 'category':
+                    sorted.sort((a, b) => a.category.localeCompare(b.category));
+                    break;
+                case 'favorites':
+                    sorted.sort((a, b) => {
+                        const aId = a.name.replace(/\s+/g, '-').toLowerCase();
+                        const bId = b.name.replace(/\s+/g, '-').toLowerCase();
+                        const aStatus = getReviewStatus(aId);
+                        const bStatus = getReviewStatus(bId);
+                        
+                        // Sort order: favorited, not-reviewed, dismissed
+                        const statusOrder = { 'favorited': 3, 'not-reviewed': 2, 'dismissed': 1 };
+                        const aOrder = statusOrder[aStatus] || 2;
+                        const bOrder = statusOrder[bStatus] || 2;
+                        
+                        if (aOrder !== bOrder) return bOrder - aOrder;
+                        return a.name.localeCompare(b.name);
+                    });
+                    break;
+            }
+            
+            return sorted;
+        }
+
+        // Event handlers for pagination
+        function changePerPage() {
+            scriptsPerPage = parseInt($('#per-page-select').val());
+            currentPage = 1;
+            renderCurrentPage();
+        }
+
+        // Add pagination click handler
+        $(document).on('click', '.pagination .page-link', function(e) {
+            e.preventDefault();
+            const page = parseInt($(this).data('page'));
+            if (page && page !== currentPage) {
+                currentPage = page;
+                renderCurrentPage();
+                // Scroll to top of scripts container
+                $('html, body').animate({
+                    scrollTop: $('#scripts-container').offset().top - 100
+                }, 500);
+            }
+        });
+
+        function updateAllStatistics() {
+            updateTotalStatistics();
+            updateReviewCounts();
+        }
+
+        function updateTotalStatistics() {
+            const excellentCount = allScripts.filter(s => s.quality === 'Excellent').length;
+            const filteredExcellentCount = filteredScripts.filter(s => s.quality === 'Excellent').length;
+            
+            $('#total-scripts').text(allScripts.length);
+            $('#excellent-count').text(`${filteredExcellentCount}/${excellentCount}`);
+        }
+
+        // Debounce function for search input
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Updated to work with new pagination system
+        // This function is now replaced by updateAllStatistics()
+
+        function updateReviewCounts() {
+            let notReviewedCount = 0;
+            let favoritesCount = 0;
+            let dismissedCount = 0;
+            
+            allScripts.forEach(script => {
+                const scriptId = script.name.replace(/\s+/g, '-').toLowerCase();
+                const status = getReviewStatus(scriptId);
+                
+                switch(status) {
+                    case 'favorited':
+                        favoritesCount++;
+                        break;
+                    case 'dismissed':
+                        dismissedCount++;
+                        break;
+                    default:
+                        notReviewedCount++;
+                }
+            });
+            
+            $('#not-reviewed-count').text(notReviewedCount);
+            $('#favorites-count').text(favoritesCount);
+            $('#dismissed-count').text(dismissedCount);
+        }
+
+        function getReviewStatus(scriptId) {
+            const status = localStorage.getItem(`script-status-${scriptId}`);
+            return status || 'not-reviewed';
+        }
+
+        function toggleReviewStatus(scriptId) {
+            const currentStatus = getReviewStatus(scriptId);
+            let newStatus;
+            
+            switch(currentStatus) {
+                case 'favorited':
+                    newStatus = 'dismissed';
+                    break;
+                case 'dismissed':
+                    newStatus = 'not-reviewed';
+                    break;
+                default: // not-reviewed
+                    newStatus = 'favorited';
+            }
+            
+            // Save to localStorage
+            if (newStatus === 'not-reviewed') {
+                localStorage.removeItem(`script-status-${scriptId}`);
+            } else {
+                localStorage.setItem(`script-status-${scriptId}`, newStatus);
+            }
+            
+            return newStatus;
+        }
+    </script>
+</body>
+</html> 
