@@ -128,30 +128,35 @@ Some scripts may require database entries for:
 **Last Updated**: December 2024
 
 ### Progress Overview
-We are systematically cataloging all Lua scripts in this repository into a comprehensive, searchable database. Each script is being evaluated for code quality, functionality, and requirements.
+We are systematically cataloging all Lua scripts in this repository into a comprehensive, searchable database. The catalog has been successfully refactored to use external JSON data loading and standardized category vocabulary.
 
 ### Completed Sections ✅
 - **Solo Scripts**: 6 individual script packages cataloged
 - **YggdrasilWotlk Script Pack**: 43 scripts cataloged (100% complete)
 - **Isidorsson Script Pack**: 49 systems cataloged (100% complete)
-  - Includes breakdown of major AIO systems and individual QoL scripts
-  - All grouped collections separated into individual entries
+- **Ornfelt Script Pack**: Partially complete - lua/ directory cataloged, but eluna-scripts/ mapped as single system
+- **Refactor Infrastructure**: External JSON loading, category vocabulary standardization (94 → 15 categories)
 - **HTML Interface**: Complete with pagination, filtering, and search functionality
 
-### In Progress 🔄
-- **Ornfelt Script Pack**: 9 systems cataloged out of 65+ directories
-  - Recently added: AzerothCore Multi-Vendor, Starting NPC, Global Mail/Banking, Zone Selector, Trivia System, Wowhead Integration, Auto Rez, Boss Timer, CarbonCopy, Event Scripts Collection
-  - **Next up**: Continuing alphabetically with Acore_LevelUpReward, Acore_LootStats, Acore_Lua_BuffNPC, Acore_Lua_Mythic_Plus, Acore_Lua_RandomlyAttacked
+### Current Issues & Required Work 🔧
+- **Implementation Field**: Currently broken/inconsistent - needs complete rework to reflect actual player interaction methods
+- **Quality Field**: Needs systematic review and standardization across all 393 scripts  
+- **Missing Filter**: Implementation filter not available in HTML interface
+- **Ornfelt eluna-scripts/**: Currently mapped as single "Eluna-Scripts" system but contains 196+ individual scripts that need separate cataloging
+- **Ornfelt Remaining**: 56+ other directories still need cataloging
 
-### Remaining Work 📋
-- **Ornfelt Script Pack**: ~56 more directories to catalog
-- **Final Review**: Quality assessments and testing
-- **Documentation**: Installation guides and usage instructions
+### Data Quality Status
+- **Categories**: ✅ Standardized (15 clean categories)
+- **Descriptions**: ✅ Consolidated (notes merged)
+- **Implementation**: ❌ Broken (362 inconsistent values, needs complete rework)
+- **Quality**: ❌ Inconsistent (needs systematic review)
+- **Total Scripts**: 393 cataloged with varying data quality
 
 ### Catalog Access
 - **Interactive HTML Catalog**: `script-catalog.html` - Complete searchable interface with filtering by pack, quality, SQL requirements, and categories
-- **Filters Available**: 6 script packs, 4 quality levels, 3 SQL requirements, 35+ categories
-- **Total Scripts Cataloged**: 107 systems and counting
+- **Filters Available**: 6 script packs, 4 quality levels, 3 SQL requirements, 15 categories
+- **Missing Filter**: Implementation (due to data quality issues)
+- **Total Scripts Cataloged**: 393 systems across all packs
 
 #### Viewing the Catalog
 To properly view the interactive HTML catalog (required for JSON data loading):
