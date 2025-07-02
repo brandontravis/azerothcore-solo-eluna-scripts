@@ -146,11 +146,6 @@ We are systematically cataloging all Lua scripts in this repository into a compr
 
 #### Uncatalogued Ornfelt Directories Analysis 📋
 
-**Individual Systems (17 directories)** - Each likely represents 1 catalog entry:
-- WowEmulationScriptPack/, WowLuaStuff/, acore-SimpleBoss/, acore_lua_teleporter/
-- arena-spectator/, Extended-Holidays-Lua/, KaraLoot/, LibAzerothCore-1.0/
-- Lua-HardcoreMode/, Lua_creature_learning/, Mercenaries_Script/, NPCBotInventory/
-- NetherBot/, Npcbot_Extended_Commands/, PublicScripts/, lua_vip/, Scripts/
 
 **Template/Tool Systems (4 directories)** - Specialized systems:
 - lua-ItemUpgrader-Template/, lua-NotOnly-RandomMorpher/, lua-Super-BufferNPC/, lua-aio-paragon-system/
