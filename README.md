@@ -139,11 +139,39 @@ We are systematically cataloging all Lua scripts in this repository into a compr
 - **HTML Interface**: Complete with pagination, filtering, and search functionality
 
 ### Current Issues & Required Work 🔧
-- **Implementation Field**: Currently broken/inconsistent - needs complete rework to reflect actual player interaction methods
-- **Quality Field**: Needs systematic review and standardization across all 393 scripts  
-- **Missing Filter**: Implementation filter not available in HTML interface
-- **Ornfelt eluna-scripts/**: Currently mapped as single "Eluna-Scripts" system but contains 196+ individual scripts that need separate cataloging
-- **Ornfelt Remaining**: 56+ other directories still need cataloging
+- **Implementation Field**: Partially fixed (82 clean, 311 legacy needing review) - systematic review required
+- **Quality Field**: Completely removed due to inconsistency - no longer an issue  
+- **Ornfelt Expansion Completed**: ✅ Successfully broke down "Eluna Scripts Pack" into 21 individual entries
+- **Massive Uncatalogued Content**: 29 major directories in Ornfelt lua/ folder remain completely uncatalogued
+
+#### Uncatalogued Ornfelt Directories Analysis 📋
+
+**Individual Systems (17 directories)** - Each likely represents 1 catalog entry:
+- WowEmulationScriptPack/, WowLuaStuff/, acore-SimpleBoss/, acore_lua_teleporter/
+- arena-spectator/, Extended-Holidays-Lua/, KaraLoot/, LibAzerothCore-1.0/
+- Lua-HardcoreMode/, Lua_creature_learning/, Mercenaries_Script/, NPCBotInventory/
+- NetherBot/, Npcbot_Extended_Commands/, PublicScripts/, lua_vip/, Scripts/
+
+**Template/Tool Systems (4 directories)** - Specialized systems:
+- lua-ItemUpgrader-Template/, lua-NotOnly-RandomMorpher/, lua-Super-BufferNPC/, lua-aio-paragon-system/
+
+**Major Script Collections (5+ directories)** - Each contains multiple individual scripts:
+- **RandomScriptsforAzerothCore/**: 328+ individual .lua files (completely uncatalogued)
+- **WowEmulationScriptPack/**: 368 individual lua files
+- **WowLuaStuff/**: 11+ individual scripts  
+- **PublicScripts/**: Unknown quantity of scripts
+- **Scripts/**: Unknown quantity of scripts
+
+**Complex Systems (3 directories)** - Advanced/specialized systems:
+- WardenInject/ (anti-cheat), World-of-Bloxcraft-Main/ (custom world), plus others
+
+#### Expansion Potential Impact 🚀
+- **Current Catalog**: 413 scripts
+- **Conservative Estimate**: +400-500 additional scripts from uncatalogued directories
+- **Full Expansion Potential**: 800-1000+ total scripts if all collections are properly cataloged
+- **RandomScriptsforAzerothCore alone**: Would nearly double current catalog size
+
+**Next Priority**: The RandomScriptsforAzerothCore directory represents the largest single expansion opportunity with 328+ individual scripts that are completely invisible to catalog users.
 
 ### Data Quality Status
 - **Categories**: ✅ Standardized (15 clean categories)

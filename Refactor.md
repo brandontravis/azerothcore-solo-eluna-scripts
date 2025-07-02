@@ -48,7 +48,7 @@ All script/system entries should use the following schema:
 ### Category (impact/purpose)
 - QOL (Quality of Life)
 - Overhaul
-- Big Fix
+- Bug Fix
 - Fun
 - Progression
 - Economy
